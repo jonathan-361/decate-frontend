@@ -1,0 +1,87 @@
+import type { Task } from "@/modules/tasks/schemas";
+
+export const INITIAL_TASKS: Task[] = [
+  {
+    id: 1,
+    title: "Informe de Cálculo Diferencial",
+    description: "Resolver los ejercicios del capítulo 5 y redactar el informe de resultados con conclusiones.",
+    subject: "Cálculo",
+    subjectColor: "bg-blue-500",
+    dueDate: "2026-11-05",
+    dueTime: "23:59",
+    priority: "Alta",
+    status: "en-proceso",
+    hasAttachment: true,
+  },
+  {
+    id: 2,
+    title: "Práctica de Programación — Listas enlazadas",
+    description: "Implementar una lista enlazada doble con operaciones de inserción, eliminación y búsqueda.",
+    subject: "Programación",
+    subjectColor: "bg-emerald-500",
+    dueDate: "2026-11-06",
+    dueTime: "08:00",
+    priority: "Alta",
+    status: "pendiente",
+    hasAttachment: false,
+  },
+  {
+    id: 3,
+    title: "Resumen de capítulos 4-6",
+    description: "Leer y resumir los capítulos 4, 5 y 6 del libro de Historia. Mínimo 2 páginas.",
+    subject: "Historia",
+    subjectColor: "bg-amber-500",
+    dueDate: "2026-11-07",
+    dueTime: "12:00",
+    priority: "Media",
+    status: "pendiente",
+    hasAttachment: false,
+  },
+  {
+    id: 4,
+    title: "Maqueta de circuito RC",
+    description: "Construir la maqueta del circuito RC y preparar la presentación de resultados.",
+    subject: "Electrónica",
+    subjectColor: "bg-violet-500",
+    dueDate: "2026-11-10",
+    dueTime: "09:00",
+    priority: "Media",
+    status: "pendiente",
+    hasAttachment: true,
+  },
+  {
+    id: 5,
+    title: "Ejercicios de derivadas",
+    description: "Completar los ejercicios de la hoja de trabajo 3.",
+    subject: "Cálculo",
+    subjectColor: "bg-blue-500",
+    dueDate: "2026-11-03",
+    dueTime: "23:59",
+    priority: "Baja",
+    status: "completada",
+    hasAttachment: false,
+  },
+  {
+    id: 6,
+    title: "Presentación de primer avance",
+    description: "Preparar diapositivas del primer avance del proyecto final.",
+    subject: "Programación",
+    subjectColor: "bg-emerald-500",
+    dueDate: "2026-11-01",
+    dueTime: "10:00",
+    priority: "Alta",
+    status: "completada",
+    hasAttachment: true,
+  },
+];
+
+export const SUBJECTS = ["Cálculo", "Programación", "Historia", "Electrónica", "Otra"] as const;
+
+export const SUBJECT_COLORS: Record<string, string> = {
+  Cálculo: "bg-blue-500",
+  Programación: "bg-emerald-500",
+  Historia: "bg-amber-500",
+  Electrónica: "bg-violet-500",
+  Otra: "bg-muted-foreground",
+};
+
