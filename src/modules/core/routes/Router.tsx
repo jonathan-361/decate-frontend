@@ -11,6 +11,7 @@ import ProfilePage from "@/modules/users/pages/ProfilePage";
 import SettingsPage from "@/modules/settings/pages/SettingsPage";
 import CalendarPage from "@/modules/calendar/pages/CalendarPage";
 import ExamsPage from "@/modules/exams/pages/ExamsPage";
+import RemindersPage from "@/modules/reminders/pages/RemindersPage";
 
 function AppRouter() {
   return (
@@ -27,6 +28,7 @@ function AppRouter() {
       <Route path={paths.schedule} element={<SchedulePage />} />
       <Route path={paths.calendar} element={<CalendarPage />} />
       <Route path={paths.exams} element={<ExamsPage />} />
+      <Route path={paths.reminders} element={<RemindersPage />} />
       <Route path={paths.profile} element={<ProfilePage />} />
       <Route path={paths.settings} element={<SettingsPage />} />
 

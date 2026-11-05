@@ -32,10 +32,10 @@ import { Separator } from "@/components/ui/separator";
 const navItems = [
   { label: "Inicio", icon: LayoutDashboard, path: paths.home },
   { label: "Tareas", icon: CheckSquare, path: paths.tasks },
-  { label: "Calendario", icon: Calendar, path: "/calendar" },
-  { label: "Horario", icon: Clock, path: "/schedule" },
-  { label: "Exámenes", icon: FlaskConical, path: "/exams" },
-  { label: "Recordatorios", icon: Bell, path: "/reminders" },
+  { label: "Calendario", icon: Calendar, path: paths.calendar },
+  { label: "Horario", icon: Clock, path: paths.schedule },
+  { label: "Exámenes", icon: FlaskConical, path: paths.exams },
+  { label: "Recordatorios", icon: Bell, path: paths.reminders },
 ];
 
 interface AppLayoutProps {
@@ -139,14 +139,13 @@ function AppLayout({ children }: AppLayoutProps) {
             {location.pathname === paths.profile
               ? "Perfil de estudiante"
               : location.pathname === paths.settings
-              ? "Configuración"
-              : navItems.find((n) => n.path === location.pathname)?.label ?? "Dacate"}
+                ? "Configuración"
+                : (navItems.find((n) => n.path === location.pathname)?.label ??
+                  "Dacate")}
           </span>
         </header>
 
-        <main className="flex-1 p-6">
-          {children}
-        </main>
+        <main className="flex-1 p-6">{children}</main>
       </SidebarInset>
     </SidebarProvider>
   );
