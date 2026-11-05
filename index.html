@@ -6,6 +6,20 @@
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Decate - Organiza tus tareas académicas</title>
+  <script>
+    (function () {
+      try {
+        var stored = window.localStorage.getItem("dacate-theme");
+        var mode = stored === "dark" || stored === "light" || stored === "system" ? stored : "light";
+        var dark = mode === "dark" || (mode === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches);
+        var root = document.documentElement;
+        root.classList.toggle("dark", dark);
+        root.dataset.theme = dark ? "dark" : "light";
+      } catch (e) {
+        /* noop: the app applies the theme once React mounts */
+      }
+    })();
+  </script>
 </head>
 
 <body>

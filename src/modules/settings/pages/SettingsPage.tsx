@@ -5,7 +5,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { PageContainer, PageHeader } from "@/components/custom";
 import { paths } from "@/modules/core/routes/paths/path";
 import { AppLayout } from "@/modules/core/components/AppLayout";
-import type { ThemeMode } from "@/modules/settings/schemas";
+import { useThemeStore } from "@/modules/core/stores/theme.store";
 import { AppearanceTab } from "@/modules/settings/components/AppearanceTab";
 import { NotificationsTab } from "@/modules/settings/components/NotificationsTab";
 import { SyncTab } from "@/modules/settings/components/SyncTab";
@@ -15,7 +15,8 @@ export default function SettingsPage() {
   const navigate = useNavigate();
 
   // Appearance states
-  const [theme, setTheme] = useState<ThemeMode>("light");
+  const theme = useThemeStore((state) => state.theme);
+  const setTheme = useThemeStore((state) => state.setTheme);
   const [weekStart, setWeekStart] = useState<string>("lunes");
   const [timeFormat, setTimeFormat] = useState<string>("24h");
   const [defaultCalendarView, setDefaultCalendarView] = useState<string>("mes");
