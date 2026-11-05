@@ -1,0 +1,310 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-05T14:48:53-06:00",
+  "title": "Design System: Dacate",
+  "extensions": {
+    "colorMeta": {
+      "tinta": {
+        "role": "primary",
+        "displayName": "Tinta de Imprenta",
+        "canonical": "oklch(0.214 0.009 43.1)",
+        "tonalRamp": [
+          "oklch(0.15 0.006 43)",
+          "oklch(0.21 0.009 43)",
+          "oklch(0.3 0.011 43)",
+          "oklch(0.4 0.013 43)",
+          "oklch(0.52 0.015 43)",
+          "oklch(0.66 0.013 43)",
+          "oklch(0.81 0.009 43)",
+          "oklch(0.93 0.004 43)"
+        ]
+      },
+      "papel": {
+        "role": "neutral",
+        "displayName": "Papel Blanco",
+        "canonical": "oklch(1 0 0)",
+        "tonalRamp": [
+          "oklch(0.15 0 0)",
+          "oklch(0.25 0 0)",
+          "oklch(0.38 0 0)",
+          "oklch(0.52 0 0)",
+          "oklch(0.68 0 0)",
+          "oklch(0.82 0 0)",
+          "oklch(0.93 0 0)",
+          "oklch(1 0 0)"
+        ]
+      },
+      "negro-calido": {
+        "role": "neutral",
+        "displayName": "Negro Cálido",
+        "canonical": "oklch(0.147 0.004 49.3)",
+        "tonalRamp": [
+          "oklch(0.14 0.004 49)",
+          "oklch(0.2 0.006 49)",
+          "oklch(0.3 0.008 49)",
+          "oklch(0.42 0.01 49)",
+          "oklch(0.55 0.012 49)",
+          "oklch(0.7 0.01 49)",
+          "oklch(0.85 0.006 49)",
+          "oklch(0.96 0.003 49)"
+        ]
+      },
+      "crema": {
+        "role": "neutral",
+        "displayName": "Crema de Prensa",
+        "canonical": "oklch(0.986 0.002 67.8)",
+        "tonalRamp": [
+          "oklch(0.2 0.006 68)",
+          "oklch(0.32 0.01 68)",
+          "oklch(0.45 0.014 68)",
+          "oklch(0.6 0.02 68)",
+          "oklch(0.75 0.02 68)",
+          "oklch(0.87 0.012 68)",
+          "oklch(0.94 0.005 68)",
+          "oklch(0.99 0.002 68)"
+        ]
+      },
+      "papel-bulo": {
+        "role": "neutral",
+        "displayName": "Papel de Bulo",
+        "canonical": "oklch(0.96 0.002 17.2)",
+        "tonalRamp": [
+          "oklch(0.18 0.006 17)",
+          "oklch(0.3 0.01 17)",
+          "oklch(0.44 0.014 17)",
+          "oklch(0.6 0.018 17)",
+          "oklch(0.74 0.016 17)",
+          "oklch(0.86 0.008 17)",
+          "oklch(0.93 0.004 17)",
+          "oklch(0.97 0.002 17)"
+        ]
+      },
+      "gris-anotacion": {
+        "role": "neutral",
+        "displayName": "Gris Anotación",
+        "canonical": "oklch(0.547 0.021 43.1)",
+        "tonalRamp": [
+          "oklch(0.17 0.007 43)",
+          "oklch(0.26 0.012 43)",
+          "oklch(0.37 0.017 43)",
+          "oklch(0.48 0.021 43)",
+          "oklch(0.56 0.021 43)",
+          "oklch(0.7 0.017 43)",
+          "oklch(0.85 0.01 43)",
+          "oklch(0.95 0.004 43)"
+        ]
+      },
+      "filete": {
+        "role": "neutral",
+        "displayName": "Filete",
+        "canonical": "oklch(0.922 0.005 34.3)",
+        "tonalRamp": [
+          "oklch(0.18 0.005 34)",
+          "oklch(0.3 0.008 34)",
+          "oklch(0.44 0.011 34)",
+          "oklch(0.58 0.012 34)",
+          "oklch(0.72 0.01 34)",
+          "oklch(0.84 0.007 34)",
+          "oklch(0.92 0.005 34)",
+          "oklch(0.97 0.002 34)"
+        ]
+      },
+      "oxido": {
+        "role": "functional",
+        "displayName": "Rojo de Corrección",
+        "canonical": "oklch(0.577 0.245 27.325)",
+        "tonalRamp": [
+          "oklch(0.2 0.08 27)",
+          "oklch(0.3 0.13 27)",
+          "oklch(0.42 0.19 27)",
+          "oklch(0.58 0.245 27)",
+          "oklch(0.68 0.19 27)",
+          "oklch(0.78 0.13 27)",
+          "oklch(0.87 0.07 27)",
+          "oklch(0.95 0.03 27)"
+        ]
+      },
+      "anillo": {
+        "role": "functional",
+        "displayName": "Anillo de Foco",
+        "canonical": "oklch(0.714 0.014 41.2)",
+        "tonalRamp": [
+          "oklch(0.2 0.006 41)",
+          "oklch(0.32 0.01 41)",
+          "oklch(0.45 0.013 41)",
+          "oklch(0.58 0.015 41)",
+          "oklch(0.71 0.014 41)",
+          "oklch(0.82 0.01 41)",
+          "oklch(0.91 0.006 41)",
+          "oklch(0.97 0.003 41)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Títulos de página en autenticación. Playfair semibold, la única vez que la serif baja de 18px a un título grande."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Títulos de tarjeta, diálogo y estado vacío, y la marca DACATE. Playfair en mayúsculas con tracking 0.025em."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Texto operativo por defecto: descripciones, listas, metadatos, párrafos de formulario e inputs (16px en móvil)."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Botones, encabezados de sección, etiquetas de grupo del menú y chips de autenticación. Versalitas 12px tracking 0.1em."
+      },
+      "micro": {
+        "displayName": "Micro",
+        "purpose": "Badges de estado de tarea y metadatos de tabla. Versalitas 10px tracking 0.1em."
+      }
+    },
+    "shadows": [
+      {
+        "name": "card",
+        "value": "0 1px 2px 0 rgb(0 0 0 / 0.05)",
+        "purpose": "Tacto casi subliminal bajo las tarjetas; el trabajo visible lo hace el anillo ring-1 ring-foreground/5 que lo acompaña."
+      },
+      {
+        "name": "overlay",
+        "value": "0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)",
+        "purpose": "Diálogos y popovers, siempre con ring-foreground/10 y backdrop black/20 con blur."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease-standard",
+        "value": "cubic-bezier(0.4, 0, 0.2, 1)",
+        "purpose": "Easing por defecto de toda transición de estado (Tailwind default)."
+      },
+      {
+        "name": "duration-fast",
+        "value": "150ms",
+        "purpose": "Hover/active de botones, enlaces y cambios de color de borde en inputs."
+      },
+      {
+        "name": "duration-overlay",
+        "value": "100ms",
+        "purpose": "Entrada/salida de diálogos: fade + zoom-in-95."
+      },
+      {
+        "name": "duration-sidebar",
+        "value": "200ms linear",
+        "purpose": "Ancho de la barra lateral al colapsar a iconos."
+      }
+    ],
+    "breakpoints": [
+      { "name": "sm", "value": "640px" },
+      { "name": "md", "value": "768px" },
+      { "name": "lg", "value": "1024px" },
+      { "name": "xl", "value": "1280px" },
+      { "name": "2xl", "value": "1536px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Bloque macizo de tinta con etiqueta en versalitas; acción principal de cualquier pantalla.",
+      "html": "<button class=\"ds-btn-primary\">Iniciar sesión</button>",
+      "css": ".ds-btn-primary{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:40px;padding:0 24px;background:var(--primary);color:var(--primary-foreground);font-family:var(--font-sans);font-size:12px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;white-space:nowrap;border:1px solid transparent;border-radius:0;cursor:pointer;transition:background-color 150ms cubic-bezier(0.4,0,0.2,1),transform 150ms cubic-bezier(0.4,0,0.2,1)}.ds-btn-primary:hover{background:color-mix(in oklch,var(--primary) 80%,transparent)}.ds-btn-primary:active{transform:translateY(1px)}.ds-btn-primary:focus-visible{outline:none;border-color:var(--ring);box-shadow:0 0 0 2px color-mix(in oklch,var(--ring) 30%,transparent)}.ds-btn-primary:disabled{opacity:.5;pointer-events:none}"
+    },
+    {
+      "name": "Outline Button",
+      "kind": "button",
+      "refersTo": "button-outline",
+      "description": "Botón de filete: borde de 1px, fondo transparente; acción secundaria.",
+      "html": "<button class=\"ds-btn-outline\">Ver detalle</button>",
+      "css": ".ds-btn-outline{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:40px;padding:0 24px;background:transparent;color:var(--foreground);font-family:var(--font-sans);font-size:12px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;white-space:nowrap;border:1px solid var(--border);border-radius:0;cursor:pointer;transition:background-color 150ms cubic-bezier(0.4,0,0.2,1)}.ds-btn-outline:hover{background:var(--muted);color:var(--foreground)}.ds-btn-outline:active{transform:translateY(1px)}.ds-btn-outline:focus-visible{outline:none;border-color:var(--ring);box-shadow:0 0 0 2px color-mix(in oklch,var(--ring) 30%,transparent)}"
+    },
+    {
+      "name": "Ghost Button",
+      "kind": "button",
+      "refersTo": "button-ghost",
+      "description": "Sin borde ni fondo; base de las acciones de fila que aparecen en hover.",
+      "html": "<button class=\"ds-btn-ghost\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M12 20h9\"/><path d=\"M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z\"/></svg>Editar</button>",
+      "css": ".ds-btn-ghost{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:36px;padding:0 16px;background:transparent;color:var(--foreground);font-family:var(--font-sans);font-size:12px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;border:1px solid transparent;border-radius:0;cursor:pointer;transition:background-color 150ms cubic-bezier(0.4,0,0.2,1),color 150ms cubic-bezier(0.4,0,0.2,1)}.ds-btn-ghost svg{width:14px;height:14px}.ds-btn-ghost:hover{background:var(--muted);color:var(--foreground)}.ds-btn-ghost:focus-visible{outline:none;box-shadow:0 0 0 2px color-mix(in oklch,var(--ring) 30%,transparent)}"
+    },
+    {
+      "name": "Underline Input",
+      "kind": "input",
+      "refersTo": "input-underline",
+      "description": "El input como línea escrita bajo el texto: sin caja, solo borde inferior que toma el color de foco.",
+      "html": "<input class=\"ds-input\" aria-label=\"Correo electrónico\" placeholder=\"correo@ejemplo.com\" />",
+      "css": ".ds-input{display:block;width:100%;height:40px;padding:4px 0;background:transparent;color:var(--foreground);font-family:var(--font-sans);font-size:14px;border:none;border-bottom:1px solid var(--input);border-radius:0;outline:none;transition:border-color 150ms cubic-bezier(0.4,0,0.2,1)}.ds-input::placeholder{color:var(--muted-foreground)}.ds-input:focus{border-bottom-color:var(--ring)}.ds-input[aria-invalid=\"true\"]{border-bottom-color:var(--destructive)}.ds-input:disabled{opacity:.5;cursor:not-allowed}"
+    },
+    {
+      "name": "Card",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "Celda de papel: fondo blanco, esquina cero, anillo de 5% y título serif en versalitas.",
+      "html": "<div class=\"ds-card\"><div class=\"ds-card-title\">Tareas pendientes</div><p class=\"ds-card-desc\">3 actividades vencen esta semana.</p></div>",
+      "css": ".ds-card{display:flex;flex-direction:column;gap:8px;padding:32px;background:var(--card);color:var(--card-foreground);font-family:var(--font-sans);font-size:14px;border-radius:0;box-shadow:0 1px 2px 0 rgb(0 0 0 / 0.05),0 0 0 1px color-mix(in oklch,var(--foreground) 5%, transparent)}.ds-card-title{font-family:var(--font-heading);font-size:18px;font-weight:600;line-height:1.4;letter-spacing:0.025em;text-transform:uppercase}.ds-card-desc{font-size:14px;line-height:1.5;color:var(--muted-foreground)}"
+    },
+    {
+      "name": "Sidebar Nav Item",
+      "kind": "nav",
+      "refersTo": "nav-item",
+      "description": "Ítem cuadrado del menú lateral; hover y activo comparten la superficie Papel de Bulo.",
+      "html": "<a class=\"ds-nav-item\" data-active=\"true\" href=\"#\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"m9 11 3 3L22 4\"/><path d=\"M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11\"/></svg>Tareas</a>",
+      "css": ".ds-nav-item{display:flex;align-items:center;gap:8px;height:36px;padding:8px 12px;background:transparent;color:var(--sidebar-foreground);font-family:var(--font-sans);font-size:14px;text-decoration:none;border-radius:0;transition:background-color 150ms cubic-bezier(0.4,0,0.2,1)}.ds-nav-item svg{width:16px;height:16px;flex-shrink:0}.ds-nav-item:hover{background:var(--sidebar-accent);color:var(--sidebar-accent-foreground)}.ds-nav-item[data-active=\"true\"]{background:var(--sidebar-accent);color:var(--sidebar-accent-foreground);font-weight:500}.ds-nav-item:focus-visible{outline:none;box-shadow:0 0 0 2px var(--sidebar-ring)}"
+    },
+    {
+      "name": "Status Badge",
+      "kind": "chip",
+      "refersTo": "badge",
+      "description": "Badge puramente tipográfico: texto de 10px en versalitas, sin fondo ni borde; variante alerta en rojo.",
+      "html": "<span class=\"ds-badge\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"m9 12 2 2 4-4\"/></svg>Pendiente</span>",
+      "css": ".ds-badge{display:inline-flex;align-items:center;gap:6px;padding:0;background:transparent;border:none;color:var(--muted-foreground);font-family:var(--font-sans);font-size:10px;font-weight:600;line-height:1;letter-spacing:0.1em;text-transform:uppercase;white-space:nowrap}.ds-badge svg{width:12px;height:12px}.ds-badge--alert{color:var(--destructive)}"
+    },
+    {
+      "name": "Section Header",
+      "kind": "custom",
+      "refersTo": "badge",
+      "description": "Etiqueta de bloque del dashboard: versalitas apagadas a la izquierda, enlace de tinta a la derecha.",
+      "html": "<div class=\"ds-section-header\"><h2 class=\"ds-section-header-title\">Tareas pendientes</h2><a class=\"ds-section-header-link\" href=\"#\">Ver todo<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M5 12h14\"/><path d=\"m12 5 7 7-7 7\"/></svg></a></div>",
+      "css": ".ds-section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}.ds-section-header-title{margin:0;font-family:var(--font-sans);font-size:12px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted-foreground)}.ds-section-header-link{display:inline-flex;align-items:center;gap:4px;font-family:var(--font-sans);font-size:12px;font-weight:500;color:var(--primary);text-decoration:none;transition:color 150ms cubic-bezier(0.4,0,0.2,1)}.ds-section-header-link:hover{color:color-mix(in oklch,var(--primary) 80%,transparent)}.ds-section-header-link svg{width:12px;height:12px}"
+    }
+  ],
+  "narrative": {
+    "northStar": "El Cuaderno de Cuadrícula",
+    "overview": "Dacate se ve como un cuaderno de cuadrícula digital: una retícula de líneas finas, esquinas rectas y absolutas, y jerarquía puramente tipográfica. La información académica —tareas, exámenes, horarios— se ordena dentro de celdas de papel blanco definidas por filetes de un píxel, nunca por sombras ni por cajas grises flotantes. El resultado es sobrio y escaneable: un estudiante abre la pantalla y lee, sin que la interfaz compita por atención.\n\nLa voz del sistema es precisa, sobria y estudiantil. Todo lo accionable se declara en versalitas trackeadas (botones, badges, encabezados de sección); todo lo que se lee en párrafo va en Noto Sans a 14px; todo lo que nombra o encabeza va en Playfair Display, la serif que aporta el carácter académico. El único color con voz propia es el rojo de corrección, reservado para errores y vencimientos. La anti-reference explícita es el SaaS alegre redondeado: nada de esquinas tipo pastilla, degradados vibrantes ni tipografía geométrica de startup.\n\nLa profundidad es plana: las superficies se separan por hairlines (filete) y por capas de papel tonal (blanco → crema → off-white cálido), con sombra únicamente en overlays. El contraste alto pero cálido (tinta casi negra sobre papel) mantiene la calma de estudio y la legibilidad entre clases.",
+    "keyCharacteristics": [
+      "Esquinas a cero en todos los componentes (radio 0px); círculos solo como dots de 6px y avatares.",
+      "Filetes de 1px como único medio de separación.",
+      "Serif Playfair Display en mayúsculas trackeadas para títulos; Noto Sans para todo lo demás.",
+      "Micro-etiquetas en versalitas 10–12px con tracking 0.1em.",
+      "Paleta monocroma cálida (papel/tinta) + un rojo funcional.",
+      "Sombra solo en overlays; las tarjetas descansan planas con un anillo de 5%."
+    ],
+    "rules": [
+      { "name": "The Filete Rule", "body": "Toda separación entre superficies es un filete de 1px en `filete` o un anillo al 5% del foreground. Nunca cajas grises flotantes, nunca degradados para \"separar\".", "section": "colors" },
+      { "name": "The Red-Only Rule", "body": "El Rojo de Corrección solo aparece donde hay estado crítico: error, vencimiento, prioridad alta, destrucción. Si un elemento rojo no comunica riesgo, está mal usado.", "section": "colors" },
+      { "name": "The Versalitas Rule", "body": "Toda etiqueta corta — botón, badge, encabezado de sección, título de tarjeta, ítem de menú de grupo — va en mayúsculas con tracking entre 0.025em y 0.1em. El cuerpo de texto jamás va en mayúsculas; la serif solo en mayúsculas.", "section": "typography" },
+      { "name": "The Serif Ceiling Rule", "body": "Playfair Display vive en títulos, marca y estados vacíos. Nunca en párrafos, inputs, tablas ni navegación de lista.", "section": "typography" },
+      { "name": "The Flat-By-Default Rule", "body": "En reposo, ninguna superficie lleva sombra. Si necesita separación, usa filete o tono; si necesita sombra, es porque está flotante (overlay) o en hover.", "section": "elevation" },
+      { "name": "The Zero-Corner Rule", "body": "Radio 0px en todo componente nuevo. Un radio de 4px \"por suavizar\" rompe el sistema; si necesitas curva, el único elemento permitido es un dot o un avatar.", "section": "shapes" }
+    ],
+    "dos": [
+      "Do mantener radio 0px en cualquier componente nuevo (esquinas rectas de extremo a extremo).",
+      "Do separar superficies con filetes de 1px en `filete` o anillos `ring-foreground/5`.",
+      "Do poner en mayúsculas trackeadas (0.025–0.1em) toda etiqueta corta: botones, badges, encabezados de sección, títulos de tarjeta.",
+      "Do usar Playfair Display solo en títulos, marca y estados vacíos; Noto Sans para todo lo operativo.",
+      "Do usar `muted-foreground` (Gris Anotación) para metadatos y texto secundario, y `papel-bulo` como única superficie tonal de hover/reposo.",
+      "Do reservar `oxido` para error, vencimiento, prioridad alta y acciones destructivas.",
+      "Do dar foco visible con `ring` cálido (`anillo`) en todo control interactivo."
+    ],
+    "donts": [
+      "Don't redondear esquinas ni introducir el look \"productividad alegre redondeado\" (esquinas tipo pastilla, burbujas, gradientes vibrantes, neón): es la anti-reference explícita de Dacate.",
+      "Don't añadir sombra a tarjetas en reposo; la sombra es solo para overlays y respuestas de estado.",
+      "Don't usar Playfair Display en párrafos, tablas, inputs ni listas de navegación.",
+      "Don't usar el rojo `oxido` como color decorativo o de marca.",
+      "Don't inventar acentos saturados (azules, morados, verdes de marca) fuera de la paleta papel/tinta/óxido; los dots de prioridad/media usan la gramática de color existente.",
+      "Don't poner texto de cuerpo en mayúsculas ni micro-etiquetas en sentence case."
+    ]
+  }
+}

@@ -10,6 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { PageContainer, PageHeader } from "@/components/custom";
 import { AppLayout } from "@/modules/core/components/AppLayout";
 import type { Task, TaskStatus } from "@/modules/tasks/schemas";
 import { INITIAL_TASKS, SUBJECT_COLORS } from "@/modules/tasks/data/mockTasks";
@@ -30,8 +31,10 @@ export default function TasksPage() {
       !search ||
       t.title.toLowerCase().includes(search.toLowerCase()) ||
       t.subject.toLowerCase().includes(search.toLowerCase());
-    const matchPriority = filterPriority === "todas" || t.priority === filterPriority;
-    const matchSubject = filterSubject === "todas" || t.subject === filterSubject;
+    const matchPriority =
+      filterPriority === "todas" || t.priority === filterPriority;
+    const matchSubject =
+      filterSubject === "todas" || t.subject === filterSubject;
     return matchSearch && matchPriority && matchSubject;
   });
 
@@ -49,7 +52,7 @@ export default function TasksPage() {
   const handleSave = (data: Omit<Task, "id">) => {
     if (editingTask) {
       setTasks((prev) =>
-        prev.map((t) => (t.id === editingTask.id ? { ...t, ...data } : t))
+        prev.map((t) => (t.id === editingTask.id ? { ...t, ...data } : t)),
       );
     } else {
       setTasks((prev) => [...prev, { ...data, id: Date.now() }]);
@@ -65,9 +68,12 @@ export default function TasksPage() {
     setTasks((prev) =>
       prev.map((t) =>
         t.id === id
-          ? { ...t, status: t.status === "completada" ? "pendiente" : "completada" }
-          : t
-      )
+          ? {
+              ...t,
+              status: t.status === "completada" ? "pendiente" : "completada",
+            }
+          : t,
+      ),
     );
   };
 
@@ -85,22 +91,17 @@ export default function TasksPage() {
 
   return (
     <AppLayout>
-      <div className="max-w-4xl mx-auto space-y-6">
-        {/* Page header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <h1 className="font-heading text-2xl font-semibold tracking-tight text-foreground">
-              Tareas y actividades
-            </h1>
-            <p className="text-sm text-muted-foreground mt-0.5">
-              {counts.pendiente + counts["en-proceso"]} pendientes · {counts.completada} completadas
-            </p>
-          </div>
-          <Button onClick={openCreate}>
-            <Plus className="size-4" />
-            Nueva tarea
-          </Button>
-        </div>
+      <PageContainer size="md">
+        <PageHeader
+          title="Tareas y actividades"
+          description={`${counts.pendiente + counts["en-proceso"]} pendientes · ${counts.completada} completadas`}
+          actions={
+            <Button onClick={openCreate}>
+              <Plus className="size-4" />
+              Nueva tarea
+            </Button>
+          }
+        />
 
         {/* Filters bar */}
         <div className="flex flex-col sm:flex-row gap-2">
@@ -123,7 +124,10 @@ export default function TasksPage() {
             )}
           </div>
 
-          <Select value={filterSubject} onValueChange={(v) => setFilterSubject(v ?? "todas")}>
+          <Select
+            value={filterSubject}
+            onValueChange={(v) => setFilterSubject(v ?? "todas")}
+          >
             <SelectTrigger className="w-auto min-w-36">
               <SelectValue placeholder="Materia" />
             </SelectTrigger>
@@ -142,7 +146,10 @@ export default function TasksPage() {
             </SelectContent>
           </Select>
 
-          <Select value={filterPriority} onValueChange={(v) => setFilterPriority(v ?? "todas")}>
+          <Select
+            value={filterPriority}
+            onValueChange={(v) => setFilterPriority(v ?? "todas")}
+          >
             <SelectTrigger className="w-auto min-w-36">
               <SelectValue placeholder="Prioridad" />
             </SelectTrigger>
@@ -168,7 +175,11 @@ export default function TasksPage() {
                 { value: "completada", label: "Completadas" },
               ] as const
             ).map((tab) => (
-              <TabsTrigger key={tab.value} value={tab.value} className="relative pb-3">
+              <TabsTrigger
+                key={tab.value}
+                value={tab.value}
+                className="relative pb-3"
+              >
                 {tab.label}
                 {counts[tab.value] > 0 && (
                   <span className="ml-1.5 inline-flex size-4 items-center justify-center rounded-full bg-muted text-[10px] font-semibold text-muted-foreground">
@@ -179,40 +190,47 @@ export default function TasksPage() {
             ))}
           </TabsList>
 
-          {(["pendiente", "en-proceso", "completada"] as TaskStatus[]).map((status) => (
-            <TabsContent key={status} value={status} className="mt-4">
-              {byStatus(status).length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-16 text-center border border-dashed border-border rounded-none">
-                  <CircleCheck className="size-8 text-muted-foreground/40 mb-3" />
-                  <p className="text-sm font-medium text-muted-foreground">
-                    {status === "completada"
-                      ? "Aún no hay tareas completadas"
-                      : "No hay tareas en esta categoría"}
-                  </p>
-                  {status === "pendiente" && (
-                    <Button variant="ghost" size="sm" className="mt-3" onClick={openCreate}>
-                      <Plus className="size-3.5" />
-                      Crear tarea
-                    </Button>
-                  )}
-                </div>
-              ) : (
-                <div className="space-y-2">
-                  {byStatus(status).map((task) => (
-                    <TaskCard
-                      key={task.id}
-                      task={task}
-                      onEdit={handleEdit}
-                      onDelete={handleDelete}
-                      onToggleStatus={handleToggleStatus}
-                    />
-                  ))}
-                </div>
-              )}
-            </TabsContent>
-          ))}
+          {(["pendiente", "en-proceso", "completada"] as TaskStatus[]).map(
+            (status) => (
+              <TabsContent key={status} value={status} className="mt-4">
+                {byStatus(status).length === 0 ? (
+                  <div className="flex flex-col items-center justify-center py-16 text-center border border-dashed border-border rounded-none">
+                    <CircleCheck className="size-8 text-muted-foreground/40 mb-3" />
+                    <p className="text-sm font-medium text-muted-foreground">
+                      {status === "completada"
+                        ? "Aún no hay tareas completadas"
+                        : "No hay tareas en esta categoría"}
+                    </p>
+                    {status === "pendiente" && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="mt-3"
+                        onClick={openCreate}
+                      >
+                        <Plus className="size-3.5" />
+                        Crear tarea
+                      </Button>
+                    )}
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {byStatus(status).map((task) => (
+                      <TaskCard
+                        key={task.id}
+                        task={task}
+                        onEdit={handleEdit}
+                        onDelete={handleDelete}
+                        onToggleStatus={handleToggleStatus}
+                      />
+                    ))}
+                  </div>
+                )}
+              </TabsContent>
+            ),
+          )}
         </Tabs>
-      </div>
+      </PageContainer>
 
       {/* Task Form Dialog */}
       <TaskFormDialog
