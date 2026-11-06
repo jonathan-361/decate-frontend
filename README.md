@@ -1,78 +1,113 @@
-# React + TypeScript + Vite
+# Dacate
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Este proyecto fue desarrollado con:
 
-Currently, two official plugins are available:
+- Vite
+- React
+- Typescript
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+---
 
-## React Compiler
+## Contenido
 
-The React Compiler is enabled on this template. See [this documentation](https://react.dev/learn/react-compiler) for more information.
+El proyecto se divide en siete módulos siendo:
 
-Note: This will impact Vite dev & build performances.
-You can also try [the experimental native React Compiler support in plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md#rust-react-compiler) by using `compiler: true` in the plugin options instead of using the Babel plugin.
+### Tareas y actividades
 
-## Expanding the ESLint configuration
+Administración de trabajos y pendientes escolares.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- Listado de tareas.
+- Crear, editar y eliminar tareas.
+- Materia relacionada.
+- Fecha y hora de entrega.
+- Prioridad.
+- Estado: pendiente, en proceso y completada.
+- Descripción y archivos adjuntos.
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+### Calendario académico
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+Visualización de todas las actividades en un calendario.
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+- Vista mensual, semanal y diaria.
+- Mostrar tareas y exámenes.
+- Mostrar eventos importantes.
+- Seleccionar un día para consultar sus actividades.
+- Identificar fechas de entrega próximas.
+
+### Horario de clases
+
+Administración de las clases del estudiante.
+
+- Registrar materias.
+- Profesor.
+- Aula o ubicación.
+- Días de clase.
+- Hora de inicio y finalización.
+- Color identificador por materia.
+- Consultar horario semanal.
+
+### Exámenes
+
+Un apartado especializado para evaluaciones.
+
+- Nombre del examen.
+- Materia.
+- Fecha y hora.
+- Lugar.
+- Temas que se evaluarán.
+- Tiempo restante para el examen.
+- Recordatorios para estudiar.
+
+### Recordatorios y notificaciones
+
+Control de avisos de actividades académicas.
+
+- Notificaciones de tareas próximas.
+- Avisos de exámenes.
+- Recordatorios de clases.
+- Configuración de anticipación.
+- Historial de notificaciones.
+- Activar o desactivar recordatorios.
+
+---
+
+## Instalación
+
+El primer paso es instalar las dependencias con
 
 ```
+pnpm install
+```
 
-You can also install [eslint-plugin-react-x](https://npmx.dev/package/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://npmx.dev/package/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+Luego es necesario ejecutarlo con
 
 ```
+pnpm run dev
+```
+
+Por ahora contiene principalmente el diseño puro con placeholders al estar en desarrollo.
+
+---
+
+### Endpoints
+
+#### Autenticación
+
+- **/login:** Iniciar sesión
+- **/register:** Registrar un usuario
+- **/forgotPassword:** Cambiar contraseña (obtener código)
+- **/changePassword:** Cambiar la contraseña
+
+#### Módulos principales
+
+- **/home:** Dashboard principal
+- **/tasks:** Apartado de tareas
+- **/calendar:** Apartado de calendario
+- **/schedules:** Horarios de clase
+- **/exams:** Examenes
+- **/reminders:** Recordatorios
+
+#### Usuario
+
+- **/profile:** Perfil del usuario
+- **/settings:** Ajustes de perfil

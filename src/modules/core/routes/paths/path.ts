@@ -7,7 +7,6 @@ export const paths = {
   tasks: "/tasks",
   calendar: "/calendar",
   exams: "/exams",
-  timetables: "/timetables",
   reminders: "/reminders",
   schedule: "/schedule",
   profile: "/profile",
