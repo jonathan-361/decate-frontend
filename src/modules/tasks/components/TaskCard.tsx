@@ -10,7 +10,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
-import { PriorityDot, priorityConfig } from "@/components/custom";
+import { priorityConfig } from "@/components/custom";
 import type { Task, TaskStatus } from "@/modules/tasks/schemas";
 
 const statusConfig: Record<

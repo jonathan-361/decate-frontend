@@ -28,6 +28,7 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
+import { clearServiceWorkerApiCache } from "@/modules/core/services/serviceWorker";
 
 const navItems = [
   { label: "Inicio", icon: LayoutDashboard, path: paths.home },
@@ -117,6 +118,7 @@ function AppLayout({ children }: AppLayoutProps) {
             <SidebarMenuItem>
               <SidebarMenuButton
                 render={<Link to={paths.login} />}
+                onClick={() => clearServiceWorkerApiCache()}
                 tooltip="Cerrar sesión"
                 className="text-destructive hover:text-destructive focus-visible:text-destructive"
               >

@@ -4,6 +4,7 @@ import { BrowserRouter } from "react-router";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import AppRouter from "@/modules/core/routes/Router";
 import { ThemeProvider } from "@/modules/core/components/ThemeProvider";
+import { registerServiceWorker, watchConnectionStatus } from "@/modules/core/services/serviceWorker";
 import "./index.css";
 
 createRoot(document.getElementById("root")!).render(
@@ -17,3 +18,6 @@ createRoot(document.getElementById("root")!).render(
     </BrowserRouter>
   </StrictMode>,
 );
+
+registerServiceWorker();
+watchConnectionStatus();

@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dacate — Sin conexión</title>
+    <meta name="theme-color" content="#1d1816" />
+    <link rel="icon" type="image/svg+xml" href="/icons/dacate.svg" />
+    <style>
+      :root {
+        color-scheme: light dark;
+        --bg: #fbfaf9;
+        --fg: #0c0a09;
+        --muted: #7c6d67;
+        --primary: #1d1816;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #16171d;
+          --fg: #f3f4f6;
+          --muted: #aba09c;
+          --primary: #e8e4e3;
+        }
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        min-height: 100svh;
+        display: grid;
+        place-items: center;
+        padding: 2rem;
+        background: var(--bg);
+        color: var(--fg);
+        font-family: ui-sans-serif, system-ui, "Segoe UI", Roboto, sans-serif;
+        text-align: center;
+      }
+      .card {
+        max-width: 26rem;
+        display: grid;
+        gap: 1rem;
+        justify-items: center;
+      }
+      .mark {
+        width: 4.5rem;
+        height: 4.5rem;
+        border-radius: 1rem;
+        background: var(--primary);
+        display: grid;
+        place-items: center;
+      }
+      .mark svg {
+        width: 2.5rem;
+        height: 2.5rem;
+      }
+      h1 {
+        margin: 0;
+        font-family: Georgia, "Times New Roman", serif;
+        font-weight: 500;
+        font-size: 2rem;
+        letter-spacing: -0.02em;
+      }
+      p {
+        margin: 0;
+        color: var(--muted);
+        line-height: 1.5;
+      }
+      button {
+        margin-top: 0.5rem;
+        padding: 0.75rem 1.5rem;
+        border: 0;
+        border-radius: 0.625rem;
+        background: var(--primary);
+        color: var(--bg);
+        font: inherit;
+        font-weight: 500;
+        cursor: pointer;
+      }
+      button:hover {
+        opacity: 0.9;
+      }
+      .hint {
+        font-size: 0.85rem;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="card">
+      <div class="mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none">
+          <path d="M6 12.16A6 3.2 0 0 0 18 12.16Z" fill="#d8d2d0" />
+          <path d="M2 10 12 4.6 22 10 12 15.4Z" fill="#f3f1f1" />
+          <path d="M22 10.2V15.4" stroke="#f3f1f1" stroke-width="1.1" stroke-linecap="round" />
+          <circle cx="22" cy="16.4" r="1.05" fill="#f3f1f1" />
+        </svg>
+      </div>
+      <h1>Sin conexión</h1>
+      <p>
+        No hemos podido conectar con el servidor. Revisa tu red e inténtalo de nuevo: tus datos
+        locales siguen guardados en este dispositivo.
+      </p>
+      <button type="button" onclick="window.location.reload()">Reintentar</button>
+      <p class="hint">Dacate · Organiza tus tareas académicas</p>
+    </main>
+  </body>
+</html>

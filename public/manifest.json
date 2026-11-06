@@ -1,0 +1,79 @@
+{
+  "id": "/",
+  "name": "Dacate — Organiza tus tareas académicas",
+  "short_name": "Dacate",
+  "description": "Asistente académico personal: organiza tareas, exámenes, horarios y recordatorios en un solo lugar.",
+  "lang": "es",
+  "dir": "ltr",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui", "browser"],
+  "orientation": "portrait-primary",
+  "background_color": "#fbfaf9",
+  "theme_color": "#1d1816",
+  "categories": ["education", "productivity", "utilities"],
+  "prefer_related_applications": false,
+  "icons": [
+    {
+      "src": "/icons/dacate.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/dacate-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/dacate-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/dacate-maskable.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icons/dacate-512x512-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Tareas",
+      "short_name": "Tareas",
+      "description": "Revisa tus tareas pendientes",
+      "url": "/tasks",
+      "icons": [{ "src": "/icons/dacate-192x192.png", "sizes": "192x192", "type": "image/png" }]
+    },
+    {
+      "name": "Calendario",
+      "short_name": "Calendario",
+      "description": "Consulta tu calendario académico",
+      "url": "/calendar",
+      "icons": [{ "src": "/icons/dacate-192x192.png", "sizes": "192x192", "type": "image/png" }]
+    },
+    {
+      "name": "Exámenes",
+      "short_name": "Exámenes",
+      "description": "Próximos exámenes y entregas",
+      "url": "/exams",
+      "icons": [{ "src": "/icons/dacate-192x192.png", "sizes": "192x192", "type": "image/png" }]
+    },
+    {
+      "name": "Horario",
+      "short_name": "Horario",
+      "description": "Tu horario de clases",
+      "url": "/schedule",
+      "icons": [{ "src": "/icons/dacate-192x192.png", "sizes": "192x192", "type": "image/png" }]
+    }
+  ]
+}
