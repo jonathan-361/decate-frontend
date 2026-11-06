@@ -80,21 +80,21 @@ export default function SettingsPage() {
         )}
 
         {/* Navigation Tabs */}
-        <Tabs defaultValue="apariencia" className="space-y-6">
+        <Tabs defaultValue="apariencia" className="min-w-0 space-y-6">
           <TabsList
             variant="line"
-            className="h-auto w-full justify-start gap-4 rounded-none border-b border-border pb-0"
+            className="h-auto w-full max-w-full justify-start gap-4 overflow-x-auto overscroll-x-contain rounded-none border-b border-border pb-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
           >
-            <TabsTrigger value="apariencia" className="pb-3 text-xs">
+            <TabsTrigger value="apariencia" className="shrink-0 pb-3 text-xs">
               Apariencia
             </TabsTrigger>
-            <TabsTrigger value="notificaciones" className="pb-3 text-xs">
+            <TabsTrigger value="notificaciones" className="shrink-0 pb-3 text-xs">
               Notificaciones
             </TabsTrigger>
-            <TabsTrigger value="sincronizacion" className="pb-3 text-xs">
+            <TabsTrigger value="sincronizacion" className="shrink-0 pb-3 text-xs">
               Sincronización y Datos
             </TabsTrigger>
-            <TabsTrigger value="cuenta" className="pb-3 text-xs">
+            <TabsTrigger value="cuenta" className="shrink-0 pb-3 text-xs">
               Cuenta y Sesión
             </TabsTrigger>
           </TabsList>
