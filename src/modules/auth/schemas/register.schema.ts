@@ -1,22 +1,45 @@
 import { z } from "zod";
 
+const NAME_REGEX = /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+$/;
+
 export const registerSchema = z
   .object({
-    nombre: z.string().min(1, "El nombre es requerido"),
-    apellidoPaterno: z.string().min(1, "El apellido paterno es requerido"),
-    apellidoMaterno: z.string().min(1, "El apellido materno es requerido"),
+    nombre: z
+      .string()
+      .trim()
+      .min(1, "El nombre es requerido")
+      .min(2, "El nombre debe tener al menos 2 caracteres")
+      .regex(NAME_REGEX, "El nombre solo puede contener letras"),
+    apellidoPaterno: z
+      .string()
+      .trim()
+      .min(1, "El apellido paterno es requerido")
+      .min(2, "El apellido paterno debe tener al menos 2 caracteres")
+      .regex(NAME_REGEX, "El apellido paterno solo puede contener letras"),
+    apellidoMaterno: z
+      .string()
+      .trim()
+      .min(1, "El apellido materno es requerido")
+      .min(2, "El apellido materno debe tener al menos 2 caracteres")
+      .regex(NAME_REGEX, "El apellido materno solo puede contener letras"),
     matricula: z
       .string()
+      .trim()
       .min(1, "La matrícula es requerida")
-      .regex(/^\d+$/, "La matrícula debe ser un número"),
+      .regex(/^\d+$/, "La matrícula solo debe contener números")
+      .refine((val) => Number(val) > 0, "La matrícula debe ser un número positivo"),
     email: z
       .string()
+      .trim()
       .min(1, "El correo es requerido")
-      .email("Ingresa un correo válido"),
+      .email("Ingresa un correo electrónico válido"),
     password: z
       .string()
-      .min(1, "La contraseña es requerida")
-      .min(8, "La contraseña debe tener al menos 8 caracteres"),
+      .min(8, "La contraseña debe tener al menos 8 caracteres")
+      .regex(/[A-Z]/, "Debe contener al menos una letra mayúscula")
+      .regex(/[a-z]/, "Debe contener al menos una letra minúscula")
+      .regex(/[0-9]/, "Debe contener al menos un número")
+      .regex(/[^A-Za-z0-9]/, "Debe contener al menos un carácter especial (ej. !@#$%^&*)"),
     confirmPassword: z.string().min(1, "Confirma tu contraseña"),
   })
   .refine((data) => data.password === data.confirmPassword, {
@@ -25,4 +48,3 @@ export const registerSchema = z
   });
 
 export type RegisterFormValues = z.infer<typeof registerSchema>;
-

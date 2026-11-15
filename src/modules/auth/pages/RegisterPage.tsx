@@ -53,8 +53,8 @@ function RegisterPage() {
         correo: data.email,
         password: data.password,
       });
-      toast.success("Cuenta creada. Ahora inicia sesión.");
-      navigate(paths.login);
+      toast.success("Cuenta creada exitosamente. Inicia sesión para continuar.");
+      navigate(paths.login, { replace: true });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Error al registrarse");
     }
@@ -78,7 +78,11 @@ function RegisterPage() {
               placeholder="Juan"
               autoComplete="given-name"
               aria-invalid={!!errors.nombre}
-              {...register("nombre")}
+              {...register("nombre", {
+                onChange: (e) => {
+                  e.target.value = e.target.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]/g, "");
+                },
+              })}
             />
             {errors.nombre && <FieldError errors={[errors.nombre]} />}
           </Field>
@@ -94,7 +98,11 @@ function RegisterPage() {
               placeholder="García"
               autoComplete="family-name"
               aria-invalid={!!errors.apellidoPaterno}
-              {...register("apellidoPaterno")}
+              {...register("apellidoPaterno", {
+                onChange: (e) => {
+                  e.target.value = e.target.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]/g, "");
+                },
+              })}
             />
             {errors.apellidoPaterno && (
               <FieldError errors={[errors.apellidoPaterno]} />
@@ -112,7 +120,11 @@ function RegisterPage() {
               placeholder="López"
               autoComplete="additional-name"
               aria-invalid={!!errors.apellidoMaterno}
-              {...register("apellidoMaterno")}
+              {...register("apellidoMaterno", {
+                onChange: (e) => {
+                  e.target.value = e.target.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]/g, "");
+                },
+              })}
             />
             {errors.apellidoMaterno && (
               <FieldError errors={[errors.apellidoMaterno]} />
@@ -130,7 +142,11 @@ function RegisterPage() {
               inputMode="numeric"
               placeholder="12345678"
               aria-invalid={!!errors.matricula}
-              {...register("matricula")}
+              {...register("matricula", {
+                onChange: (e) => {
+                  e.target.value = e.target.value.replace(/\D/g, "");
+                },
+              })}
             />
             {errors.matricula && <FieldError errors={[errors.matricula]} />}
           </Field>
@@ -175,6 +191,9 @@ function RegisterPage() {
                 {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
               </button>
             </div>
+            <p className="text-[0.75rem] text-muted-foreground mt-1">
+              Mínimo 8 caracteres, al menos una mayúscula, una minúscula, un número y un símbolo especial.
+            </p>
             {errors.password && <FieldError errors={[errors.password]} />}
           </Field>
 
