@@ -29,6 +29,7 @@ import {
 } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
 import { clearServiceWorkerApiCache } from "@/modules/core/services/serviceWorker";
+import { useAuthStore } from "@/modules/auth/stores/auth.store";
 
 const navItems = [
   { label: "Inicio", icon: LayoutDashboard, path: paths.home },
@@ -45,6 +46,7 @@ interface AppLayoutProps {
 
 function AppLayout({ children }: AppLayoutProps) {
   const location = useLocation();
+  const logout = useAuthStore((s) => s.logout);
 
   return (
     <SidebarProvider>
@@ -118,7 +120,10 @@ function AppLayout({ children }: AppLayoutProps) {
             <SidebarMenuItem>
               <SidebarMenuButton
                 render={<Link to={paths.login} />}
-                onClick={() => clearServiceWorkerApiCache()}
+                onClick={() => {
+                  logout();
+                  clearServiceWorkerApiCache();
+                }}
                 tooltip="Cerrar sesión"
                 className="text-destructive hover:text-destructive focus-visible:text-destructive"
               >

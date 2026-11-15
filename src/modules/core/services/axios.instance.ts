@@ -17,6 +17,7 @@ export const setUnauthorizedHandler = (fn: () => void) => {
 
 export const apiService = axios.create({
   baseURL,
+  withCredentials: true,
   // ?ids=1&ids=2 en lugar de ?ids[]=1&ids[]=2
   paramsSerializer: { indexes: null },
 });

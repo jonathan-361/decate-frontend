@@ -1,8 +1,11 @@
 import { useState } from "react";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Eye, EyeOff, LogIn } from "lucide-react";
+import { toast } from "sonner";
+import { useAuthStore } from "@/modules/auth/stores/auth.store";
+import { paths } from "@/modules/core/routes/paths/path";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,11 +19,12 @@ import {
 } from "@/components/ui/field";
 import { Separator } from "@/components/ui/separator";
 import { AuthLayout } from "@/modules/auth/components/AuthLayout";
-import { paths } from "@/modules/core/routes/paths/path";
 import { loginSchema, type LoginFormValues } from "@/modules/auth/schemas";
 
 function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
+  const navigate = useNavigate();
+  const login = useAuthStore((s) => s.login);
 
   const {
     register,
@@ -35,9 +39,13 @@ function LoginPage() {
     },
   });
 
-  const onSubmit = (data: LoginFormValues) => {
-    // UI-only: no API call
-    console.log("Login data:", data);
+  const onSubmit = async (data: LoginFormValues) => {
+    try {
+      await login({ correo: data.email, password: data.password });
+      navigate(paths.home);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Error al iniciar sesión");
+    }
   };
 
   return (

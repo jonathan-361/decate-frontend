@@ -2,10 +2,13 @@ import { z } from "zod";
 
 export const registerSchema = z
   .object({
-    fullName: z
+    nombre: z.string().min(1, "El nombre es requerido"),
+    apellidoPaterno: z.string().min(1, "El apellido paterno es requerido"),
+    apellidoMaterno: z.string().min(1, "El apellido materno es requerido"),
+    matricula: z
       .string()
-      .min(1, "El nombre es requerido")
-      .min(3, "El nombre debe tener al menos 3 caracteres"),
+      .min(1, "La matrícula es requerida")
+      .regex(/^\d+$/, "La matrícula debe ser un número"),
     email: z
       .string()
       .min(1, "El correo es requerido")

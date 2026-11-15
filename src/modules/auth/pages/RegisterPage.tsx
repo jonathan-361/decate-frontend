@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Eye, EyeOff, UserPlus } from "lucide-react";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,10 +18,13 @@ import { Separator } from "@/components/ui/separator";
 import { AuthLayout } from "@/modules/auth/components/AuthLayout";
 import { paths } from "@/modules/core/routes/paths/path";
 import { registerSchema, type RegisterFormValues } from "@/modules/auth/schemas";
+import { useAuthStore } from "@/modules/auth/stores/auth.store";
 
 function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const navigate = useNavigate();
+  const registro = useAuthStore((s) => s.registro);
 
   const {
     register,
@@ -29,16 +33,31 @@ function RegisterPage() {
   } = useForm<RegisterFormValues>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
-      fullName: "",
+      nombre: "",
+      apellidoPaterno: "",
+      apellidoMaterno: "",
+      matricula: "",
       email: "",
       password: "",
       confirmPassword: "",
     },
   });
 
-  const onSubmit = (data: RegisterFormValues) => {
-    // UI-only: no API call
-    console.log("Register data:", data);
+  const onSubmit = async (data: RegisterFormValues) => {
+    try {
+      await registro({
+        nombre: data.nombre,
+        apellidoPaterno: data.apellidoPaterno,
+        apellidoMaterno: data.apellidoMaterno,
+        matricula: Number(data.matricula),
+        correo: data.email,
+        password: data.password,
+      });
+      toast.success("Cuenta creada. Ahora inicia sesión.");
+      navigate(paths.login);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Error al registrarse");
+    }
   };
 
   return (
@@ -48,22 +67,72 @@ function RegisterPage() {
     >
       <form onSubmit={handleSubmit(onSubmit)} noValidate>
         <FieldGroup className="gap-6">
-          {/* Full name */}
-          <Field data-invalid={!!errors.fullName}>
+          {/* Nombre */}
+          <Field data-invalid={!!errors.nombre}>
             <FieldLabel>
-              <Label htmlFor="fullName">Nombre completo</Label>
+              <Label htmlFor="nombre">Nombre(s)</Label>
             </FieldLabel>
             <Input
-              id="fullName"
+              id="nombre"
               type="text"
-              placeholder="Juan García"
-              autoComplete="name"
-              aria-invalid={!!errors.fullName}
-              {...register("fullName")}
+              placeholder="Juan"
+              autoComplete="given-name"
+              aria-invalid={!!errors.nombre}
+              {...register("nombre")}
             />
-            {errors.fullName && (
-              <FieldError errors={[errors.fullName]} />
+            {errors.nombre && <FieldError errors={[errors.nombre]} />}
+          </Field>
+
+          {/* Apellido paterno */}
+          <Field data-invalid={!!errors.apellidoPaterno}>
+            <FieldLabel>
+              <Label htmlFor="apellidoPaterno">Apellido paterno</Label>
+            </FieldLabel>
+            <Input
+              id="apellidoPaterno"
+              type="text"
+              placeholder="García"
+              autoComplete="family-name"
+              aria-invalid={!!errors.apellidoPaterno}
+              {...register("apellidoPaterno")}
+            />
+            {errors.apellidoPaterno && (
+              <FieldError errors={[errors.apellidoPaterno]} />
             )}
+          </Field>
+
+          {/* Apellido materno */}
+          <Field data-invalid={!!errors.apellidoMaterno}>
+            <FieldLabel>
+              <Label htmlFor="apellidoMaterno">Apellido materno</Label>
+            </FieldLabel>
+            <Input
+              id="apellidoMaterno"
+              type="text"
+              placeholder="López"
+              autoComplete="additional-name"
+              aria-invalid={!!errors.apellidoMaterno}
+              {...register("apellidoMaterno")}
+            />
+            {errors.apellidoMaterno && (
+              <FieldError errors={[errors.apellidoMaterno]} />
+            )}
+          </Field>
+
+          {/* Matrícula */}
+          <Field data-invalid={!!errors.matricula}>
+            <FieldLabel>
+              <Label htmlFor="matricula">Matrícula</Label>
+            </FieldLabel>
+            <Input
+              id="matricula"
+              type="text"
+              inputMode="numeric"
+              placeholder="12345678"
+              aria-invalid={!!errors.matricula}
+              {...register("matricula")}
+            />
+            {errors.matricula && <FieldError errors={[errors.matricula]} />}
           </Field>
 
           {/* Email */}
@@ -79,9 +148,7 @@ function RegisterPage() {
               aria-invalid={!!errors.email}
               {...register("email")}
             />
-            {errors.email && (
-              <FieldError errors={[errors.email]} />
-            )}
+            {errors.email && <FieldError errors={[errors.email]} />}
           </Field>
 
           {/* Password */}
@@ -103,20 +170,12 @@ function RegisterPage() {
                 type="button"
                 onClick={() => setShowPassword((v) => !v)}
                 className="absolute right-0 top-1/2 -translate-y-1/2 p-2 text-muted-foreground hover:text-foreground transition-colors outline-none focus-visible:text-foreground"
-                aria-label={
-                  showPassword ? "Ocultar contraseña" : "Mostrar contraseña"
-                }
+                aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
               >
-                {showPassword ? (
-                  <EyeOff className="size-4" />
-                ) : (
-                  <Eye className="size-4" />
-                )}
+                {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
               </button>
             </div>
-            {errors.password && (
-              <FieldError errors={[errors.password]} />
-            )}
+            {errors.password && <FieldError errors={[errors.password]} />}
           </Field>
 
           {/* Confirm password */}
@@ -138,17 +197,9 @@ function RegisterPage() {
                 type="button"
                 onClick={() => setShowConfirmPassword((v) => !v)}
                 className="absolute right-0 top-1/2 -translate-y-1/2 p-2 text-muted-foreground hover:text-foreground transition-colors outline-none focus-visible:text-foreground"
-                aria-label={
-                  showConfirmPassword
-                    ? "Ocultar contraseña"
-                    : "Mostrar contraseña"
-                }
+                aria-label={showConfirmPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
               >
-                {showConfirmPassword ? (
-                  <EyeOff className="size-4" />
-                ) : (
-                  <Eye className="size-4" />
-                )}
+                {showConfirmPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
               </button>
             </div>
             {errors.confirmPassword && (
