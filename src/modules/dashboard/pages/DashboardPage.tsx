@@ -2,7 +2,7 @@ import { Link } from "react-router";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { paths } from "@/modules/core/routes/paths/path";
-import { AppLayout } from "@/modules/core/components/AppLayout";
+import { PageContainer, PageHeader } from "@/components/custom";
 import {
   MOCK_PENDING_TASKS,
   MOCK_UPCOMING_EXAMS,
@@ -25,51 +25,46 @@ export default function DashboardPage() {
   const dateFormatted = dateStr.charAt(0).toUpperCase() + dateStr.slice(1);
 
   return (
-    <AppLayout>
-      <div className="max-w-5xl mx-auto space-y-8">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
-          <div>
-            <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">
-              {dateFormatted}
-            </p>
-            <h1 className="font-heading text-2xl font-semibold tracking-tight text-foreground">
-              Buenos días, Estudiante
-            </h1>
-            <p className="text-sm text-muted-foreground mt-0.5">
-              Tienes{" "}
-              <span className="text-foreground font-medium">
-                {MOCK_PENDING_TASKS.length} tareas pendientes
-              </span>{" "}
-              y{" "}
-              <span className="text-foreground font-medium">
-                {MOCK_UPCOMING_EXAMS.length} exámenes próximos
-              </span>
-              .
-            </p>
-          </div>
+    <PageContainer>
+      <PageHeader
+        eyebrow={dateFormatted}
+        title="Buenos días, Estudiante"
+        description={
+          <>
+            Tienes{" "}
+            <span className="text-foreground font-medium">
+              {MOCK_PENDING_TASKS.length} tareas pendientes
+            </span>{" "}
+            y{" "}
+            <span className="text-foreground font-medium">
+              {MOCK_UPCOMING_EXAMS.length} exámenes próximos
+            </span>
+            .
+          </>
+        }
+        actions={
           <Button size="sm" render={<Link to={paths.tasks} />}>
             <Plus className="size-3.5" />
             Nueva tarea
           </Button>
+        }
+      />
+
+      {/* Weekly Completion Strip */}
+      <WeeklyProgress completionRate={MOCK_COMPLETION_RATE} />
+
+      {/* Two-column grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <PendingTasksSection tasks={MOCK_PENDING_TASKS} />
+
+        <div className="space-y-8">
+          <UpcomingExamsSection exams={MOCK_UPCOMING_EXAMS} />
+          <TodayClassesSection classes={MOCK_TODAY_CLASSES} />
         </div>
-
-        {/* Weekly Completion Strip */}
-        <WeeklyProgress completionRate={MOCK_COMPLETION_RATE} />
-
-        {/* Two-column grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <PendingTasksSection tasks={MOCK_PENDING_TASKS} />
-
-          <div className="space-y-8">
-            <UpcomingExamsSection exams={MOCK_UPCOMING_EXAMS} />
-            <TodayClassesSection classes={MOCK_TODAY_CLASSES} />
-          </div>
-        </div>
-
-        {/* Quick access */}
-        <QuickAccessSection />
       </div>
-    </AppLayout>
+
+      {/* Quick access */}
+      <QuickAccessSection />
+    </PageContainer>
   );
 }

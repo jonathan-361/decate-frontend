@@ -15,7 +15,6 @@ import { es } from "date-fns/locale";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PageContainer, PageHeader } from "@/components/custom";
-import { AppLayout } from "@/modules/core/components/AppLayout";
 import { CalendarToolbar } from "@/modules/calendar/components/CalendarToolbar";
 import { CalendarLegend } from "@/modules/calendar/components/CalendarLegend";
 import { MonthView } from "@/modules/calendar/components/MonthView";
@@ -76,8 +75,7 @@ export default function CalendarPage() {
   };
 
   return (
-    <AppLayout>
-      <PageContainer size="lg">
+    <PageContainer size="lg">
         <PageHeader
           title="Calendario"
           description="Tus tareas, exámenes y eventos importantes en un solo lugar."
@@ -133,6 +131,5 @@ export default function CalendarPage() {
           </aside>
         </div>
       </PageContainer>
-    </AppLayout>
   );
 }

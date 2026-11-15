@@ -1,4 +1,4 @@
-import { Link, useLocation } from "react-router";
+import { Link, useLocation, Outlet } from "react-router";
 import {
   GraduationCap,
   LayoutDashboard,
@@ -41,7 +41,7 @@ const navItems = [
 ];
 
 interface AppLayoutProps {
-  children: React.ReactNode;
+  children?: React.ReactNode;
 }
 
 function AppLayout({ children }: AppLayoutProps) {
@@ -152,7 +152,7 @@ function AppLayout({ children }: AppLayoutProps) {
           </span>
         </header>
 
-        <main className="flex-1 p-6">{children}</main>
+        <main className="flex-1 p-6">{children ?? <Outlet />}</main>
       </SidebarInset>
     </SidebarProvider>
   );

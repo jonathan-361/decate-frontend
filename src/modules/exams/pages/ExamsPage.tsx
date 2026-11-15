@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PageContainer, PageHeader } from "@/components/custom";
-import { AppLayout } from "@/modules/core/components/AppLayout";
 import { ExamCard } from "@/modules/exams/components/ExamCard";
 import { ExamsEmptyState } from "@/modules/exams/components/ExamsEmptyState";
 import { ExamsFilter } from "@/modules/exams/components/ExamsFilter";
@@ -24,8 +23,7 @@ export default function ExamsPage() {
         : [...upcoming, ...past];
 
   return (
-    <AppLayout>
-      <PageContainer>
+    <PageContainer>
         <PageHeader
           title="Exámenes"
           description="Fechas, temas y recordatorios para llegar preparado a cada evaluación."
@@ -63,6 +61,5 @@ export default function ExamsPage() {
           </div>
         )}
       </PageContainer>
-    </AppLayout>
   );
 }

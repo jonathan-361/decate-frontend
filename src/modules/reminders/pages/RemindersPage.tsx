@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { PageContainer, PageHeader } from "@/components/custom";
 import { paths } from "@/modules/core/routes/paths/path";
-import { AppLayout } from "@/modules/core/components/AppLayout";
 import { AlertsMasterSwitch } from "@/modules/reminders/components/AlertsMasterSwitch";
 import { NotificationHistory } from "@/modules/reminders/components/NotificationHistory";
 import { ReminderRuleCard } from "@/modules/reminders/components/ReminderRuleCard";
@@ -45,8 +44,7 @@ export default function RemindersPage() {
   const unread = MOCK_NOTIFICATIONS.filter((n) => !n.read).length;
 
   return (
-    <AppLayout>
-      <PageContainer size="md">
+    <PageContainer size="md">
         <PageHeader
           title="Recordatorios y avisos"
           description={`${MOCK_UPCOMING_REMINDERS.length} avisos programados · ${unread} sin leer`}
@@ -117,6 +115,5 @@ export default function RemindersPage() {
           </TabsContent>
         </Tabs>
       </PageContainer>
-    </AppLayout>
   );
 }

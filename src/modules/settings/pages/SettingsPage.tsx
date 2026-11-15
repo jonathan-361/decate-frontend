@@ -4,7 +4,6 @@ import { CheckCircle2 } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { PageContainer, PageHeader } from "@/components/custom";
 import { paths } from "@/modules/core/routes/paths/path";
-import { AppLayout } from "@/modules/core/components/AppLayout";
 import { useThemeStore } from "@/modules/core/stores/theme.store";
 import { AppearanceTab } from "@/modules/settings/components/AppearanceTab";
 import { NotificationsTab } from "@/modules/settings/components/NotificationsTab";
@@ -53,8 +52,7 @@ export default function SettingsPage() {
   };
 
   return (
-    <AppLayout>
-      <PageContainer size="md">
+    <PageContainer size="md">
         <PageHeader
           title="Configuración"
           description="Administra tus preferencias de visualización, notificaciones, sincronización y privacidad."
@@ -137,6 +135,5 @@ export default function SettingsPage() {
           </TabsContent>
         </Tabs>
       </PageContainer>
-    </AppLayout>
   );
 }

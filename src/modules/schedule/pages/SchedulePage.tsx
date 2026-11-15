@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { AppLayout } from "@/modules/core/components/AppLayout";
 import { PageContainer, PageHeader, SectionHeader } from "@/components/custom";
 import { INITIAL_MATERIAS } from "@/modules/schedule/data/mockSchedule";
 import { WeeklyScheduleGrid } from "@/modules/schedule/components/WeeklyScheduleGrid";
@@ -12,8 +11,7 @@ export default function SchedulePage() {
   const [dialogOpen, setDialogOpen] = useState(false);
 
   return (
-    <AppLayout>
-      <PageContainer size="lg">
+    <PageContainer size="lg">
         <PageHeader
           title="Horario semanal"
           description={`${INITIAL_MATERIAS.length} materias · Lunes a viernes · 07:00–21:00`}
@@ -37,12 +35,11 @@ export default function SchedulePage() {
             ))}
           </div>
         </section>
-      </PageContainer>
 
-      <SubjectFormDialog
-        open={dialogOpen}
-        onClose={() => setDialogOpen(false)}
-      />
-    </AppLayout>
+        <SubjectFormDialog
+          open={dialogOpen}
+          onClose={() => setDialogOpen(false)}
+        />
+      </PageContainer>
   );
 }

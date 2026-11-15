@@ -1,39 +1,46 @@
+import { lazy, Suspense } from "react";
 import { Routes, Route, Navigate } from "react-router";
 import { paths } from "@/modules/core/routes/paths/path";
-import LoginPage from "@/modules/auth/pages/LoginPage";
-import RegisterPage from "@/modules/auth/pages/RegisterPage";
-import ForgotPasswordPage from "@/modules/auth/pages/ForgotPasswordPage";
-import ChangePasswordPage from "@/modules/auth/pages/ChangePasswordPage";
-import DashboardPage from "@/modules/core/pages/DashboardPage";
-import TasksPage from "@/modules/tasks/pages/TasksPage";
-import SchedulePage from "@/modules/schedule/pages/SchedulePage";
-import ProfilePage from "@/modules/users/pages/ProfilePage";
-import SettingsPage from "@/modules/settings/pages/SettingsPage";
-import CalendarPage from "@/modules/calendar/pages/CalendarPage";
-import ExamsPage from "@/modules/exams/pages/ExamsPage";
-import RemindersPage from "@/modules/reminders/pages/RemindersPage";
+import { AppLayout } from "@/modules/core/components/AppLayout";
+
+const LoginPage = lazy(() => import("@/modules/auth/pages/LoginPage"));
+const RegisterPage = lazy(() => import("@/modules/auth/pages/RegisterPage"));
+const ForgotPasswordPage = lazy(() => import("@/modules/auth/pages/ForgotPasswordPage"));
+const ChangePasswordPage = lazy(() => import("@/modules/auth/pages/ChangePasswordPage"));
+const DashboardPage = lazy(() => import("@/modules/dashboard/pages/DashboardPage"));
+const TasksPage = lazy(() => import("@/modules/tasks/pages/TasksPage"));
+const SchedulePage = lazy(() => import("@/modules/schedule/pages/SchedulePage"));
+const CalendarPage = lazy(() => import("@/modules/calendar/pages/CalendarPage"));
+const ExamsPage = lazy(() => import("@/modules/exams/pages/ExamsPage"));
+const RemindersPage = lazy(() => import("@/modules/reminders/pages/RemindersPage"));
+const ProfilePage = lazy(() => import("@/modules/users/pages/ProfilePage"));
+const SettingsPage = lazy(() => import("@/modules/settings/pages/SettingsPage"));
 
 function AppRouter() {
   return (
-    <Routes>
-      {/* Authentication Routes */}
-      <Route path={paths.login} element={<LoginPage />} />
-      <Route path={paths.register} element={<RegisterPage />} />
-      <Route path={paths.forgotPassword} element={<ForgotPasswordPage />} />
-      <Route path={paths.changePassword} element={<ChangePasswordPage />} />
+    <Suspense fallback={null}>
+      <Routes>
+        {/* Authentication Routes */}
+        <Route path={paths.login} element={<LoginPage />} />
+        <Route path={paths.register} element={<RegisterPage />} />
+        <Route path={paths.forgotPassword} element={<ForgotPasswordPage />} />
+        <Route path={paths.changePassword} element={<ChangePasswordPage />} />
 
-      {/* App Routes */}
-      <Route path={paths.home} element={<DashboardPage />} />
-      <Route path={paths.tasks} element={<TasksPage />} />
-      <Route path={paths.schedule} element={<SchedulePage />} />
-      <Route path={paths.calendar} element={<CalendarPage />} />
-      <Route path={paths.exams} element={<ExamsPage />} />
-      <Route path={paths.reminders} element={<RemindersPage />} />
-      <Route path={paths.profile} element={<ProfilePage />} />
-      <Route path={paths.settings} element={<SettingsPage />} />
+        {/* App Routes */}
+        <Route element={<AppLayout />}>
+          <Route path={paths.home} element={<DashboardPage />} />
+          <Route path={paths.tasks} element={<TasksPage />} />
+          <Route path={paths.schedule} element={<SchedulePage />} />
+          <Route path={paths.calendar} element={<CalendarPage />} />
+          <Route path={paths.exams} element={<ExamsPage />} />
+          <Route path={paths.reminders} element={<RemindersPage />} />
+          <Route path={paths.profile} element={<ProfilePage />} />
+          <Route path={paths.settings} element={<SettingsPage />} />
+        </Route>
 
-      <Route path="*" element={<Navigate to={paths.home} replace />} />
-    </Routes>
+        <Route path="*" element={<Navigate to={paths.home} replace />} />
+      </Routes>
+    </Suspense>
   );
 }
 
