@@ -34,7 +34,11 @@ export function TodayClassesSection({ classes }: TodayClassesSectionProps) {
               >
                 {cls.subject}
               </p>
-              <p className="text-xs text-muted-foreground">
+              <p
+                className={`text-xs ${
+                  cls.current ? "text-foreground/80" : "text-muted-foreground"
+                }`}
+              >
                 {cls.time} · {cls.room}
               </p>
             </div>

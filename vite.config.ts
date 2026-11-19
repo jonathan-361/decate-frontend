@@ -43,7 +43,11 @@ function dacateServiceWorker(): Plugin {
       }
 
       const precache = Array.from(urls)
-        .filter((url) => url !== "/sw.js")
+        .filter((url) => {
+          if (url === "/sw.js") return false;
+          if (/(?:cyrillic|devanagari|greek|vietnamese)/i.test(url)) return false;
+          return true;
+        })
         .sort();
 
       const buildId = createHash("sha256")
@@ -72,6 +76,22 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": path.resolve(rootDir, "./src"),
+    },
+  },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes("node_modules")) {
+            if (id.includes("react-router") || id.includes("react-dom") || id.includes("/react/") || id.endsWith("/react")) {
+              return "vendor-react";
+            }
+            if (id.includes("@base-ui")) {
+              return "vendor-base-ui";
+            }
+          }
+        },
+      },
     },
   },
 });

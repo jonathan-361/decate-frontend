@@ -22,6 +22,7 @@ export function SectionHeader({
       {linkTo && (
         <Link
           to={linkTo}
+          aria-label={`${linkLabel}: ${title}`}
           className="inline-flex items-center gap-1 text-xs text-primary hover:text-primary/80 transition-colors font-medium"
         >
           {linkLabel}

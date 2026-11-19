@@ -17,7 +17,7 @@ export function PriorityDot({ priority, className = "" }: PriorityDotProps) {
       className={`inline-block size-1.5 rounded-full shrink-0 ${
         priorityConfig[priority]?.dotColor ?? "bg-muted-foreground"
       } ${className}`}
-      aria-label={`Prioridad ${priority}`}
+      aria-hidden="true"
     />
   );
 }

@@ -19,7 +19,7 @@ export function WeeklyProgress({ completionRate }: WeeklyProgressProps) {
           <span className="text-foreground font-semibold">{completionRate}%</span> completado
         </span>
       </div>
-      <Progress value={completionRate} className="h-1.5" />
+      <Progress value={completionRate} aria-label="Progreso semanal" className="h-1.5" />
       <p className="text-xs text-muted-foreground">
         Completaste 17 de 25 actividades esta semana. ¡Buen ritmo!
       </p>
