@@ -2,6 +2,7 @@ import { lazy, Suspense } from "react";
 import { Routes, Route, Navigate } from "react-router";
 import { paths } from "@/modules/core/routes/paths/path";
 import { AppLayout } from "@/modules/core/components/AppLayout";
+import { PrivateGuard, PublicGuard } from "@/modules/core/routes/guards";
 
 const LoginPage = lazy(() => import("@/modules/auth/pages/LoginPage"));
 const RegisterPage = lazy(() => import("@/modules/auth/pages/RegisterPage"));
@@ -20,22 +21,26 @@ function AppRouter() {
   return (
     <Suspense fallback={null}>
       <Routes>
-        {/* Authentication Routes */}
-        <Route path={paths.login} element={<LoginPage />} />
-        <Route path={paths.register} element={<RegisterPage />} />
-        <Route path={paths.forgotPassword} element={<ForgotPasswordPage />} />
-        <Route path={paths.changePassword} element={<ChangePasswordPage />} />
+        {/* Rutas públicas: redirigen al home si ya hay sesión */}
+        <Route element={<PublicGuard />}>
+          <Route path={paths.login} element={<LoginPage />} />
+          <Route path={paths.register} element={<RegisterPage />} />
+          <Route path={paths.forgotPassword} element={<ForgotPasswordPage />} />
+          <Route path={paths.changePassword} element={<ChangePasswordPage />} />
+        </Route>
 
-        {/* App Routes */}
-        <Route element={<AppLayout />}>
-          <Route path={paths.home} element={<DashboardPage />} />
-          <Route path={paths.tasks} element={<TasksPage />} />
-          <Route path={paths.schedule} element={<SchedulePage />} />
-          <Route path={paths.calendar} element={<CalendarPage />} />
-          <Route path={paths.exams} element={<ExamsPage />} />
-          <Route path={paths.reminders} element={<RemindersPage />} />
-          <Route path={paths.profile} element={<ProfilePage />} />
-          <Route path={paths.settings} element={<SettingsPage />} />
+        {/* Rutas privadas: redirigen a login si no hay sesión */}
+        <Route element={<PrivateGuard />}>
+          <Route element={<AppLayout />}>
+            <Route path={paths.home} element={<DashboardPage />} />
+            <Route path={paths.tasks} element={<TasksPage />} />
+            <Route path={paths.schedule} element={<SchedulePage />} />
+            <Route path={paths.calendar} element={<CalendarPage />} />
+            <Route path={paths.exams} element={<ExamsPage />} />
+            <Route path={paths.reminders} element={<RemindersPage />} />
+            <Route path={paths.profile} element={<ProfilePage />} />
+            <Route path={paths.settings} element={<SettingsPage />} />
+          </Route>
         </Route>
 
         <Route path="*" element={<Navigate to={paths.home} replace />} />
