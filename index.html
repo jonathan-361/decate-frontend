@@ -17,16 +17,27 @@
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' http: https: ws: wss:;" />
   <title>Decate - Organiza tus tareas académicas</title>
   <script>
+    // El tema vive en IndexedDB: se aplica antes del primer pintado para evitar el flash.
     (function () {
       try {
-        var stored = window.localStorage.getItem("dacate-theme");
-        var mode = stored === "dark" || stored === "light" || stored === "system" ? stored : "light";
-        var dark = mode === "dark" || (mode === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches);
-        var root = document.documentElement;
-        root.classList.toggle("dark", dark);
-        root.dataset.theme = dark ? "dark" : "light";
+        var request = indexedDB.open("dacate", 1);
+        request.onupgradeneeded = function () {
+          if (!request.result.objectStoreNames.contains("kv")) {
+            request.result.createObjectStore("kv");
+          }
+        };
+        request.onsuccess = function () {
+          var get = request.result.transaction("kv", "readonly").objectStore("kv").get("dacate-theme");
+          get.onsuccess = function () {
+            var mode = get.result === "dark" || get.result === "light" || get.result === "system" ? get.result : "light";
+            var dark = mode === "dark" || (mode === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches);
+            var root = document.documentElement;
+            root.classList.toggle("dark", dark);
+            root.dataset.theme = dark ? "dark" : "light";
+          };
+        };
       } catch (e) {
-        /* noop: the app applies the theme once React mounts */
+        /* noop: la app aplica el tema una vez React monta */
       }
     })();
   </script>

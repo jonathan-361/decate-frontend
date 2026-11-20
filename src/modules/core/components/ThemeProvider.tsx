@@ -1,19 +1,16 @@
 import { useEffect, type ReactNode } from "react";
-import { useThemeStore } from "@/modules/core/stores/theme.store";
-import type { ResolvedTheme } from "@/modules/core/schemas/theme.schema";
-
-const DARK_QUERY = "(prefers-color-scheme: dark)";
+import {
+  applyTheme,
+  DARK_QUERY,
+  resolveTheme,
+  useThemeStore,
+} from "@/modules/core/stores/theme.store";
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const theme = useThemeStore((state) => state.theme);
 
   useEffect(() => {
-    const root = document.documentElement;
-
-    const apply = (resolved: ResolvedTheme) => {
-      root.classList.toggle("dark", resolved === "dark");
-      root.dataset.theme = resolved;
-    };
+    const apply = (resolved: "light" | "dark") => applyTheme(resolved);
 
     if (theme !== "system") {
       apply(theme);
@@ -25,7 +22,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
       apply(event.matches ? "dark" : "light");
     };
 
-    apply(media.matches ? "dark" : "light");
+    apply(resolveTheme("system"));
     media.addEventListener("change", handleChange);
     return () => media.removeEventListener("change", handleChange);
   }, [theme]);
