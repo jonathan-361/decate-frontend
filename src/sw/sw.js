@@ -465,3 +465,13 @@ self.addEventListener("notificationclick", (event) => {
       }),
   );
 });
+
+/** Una respuesta que viene de una redirección no se puede servir a una navegación. */
+async function cleanCopy(response) {
+  if (!response.redirected) return response;
+  return new Response(await response.blob(), {
+    status: 200,
+    statusText: "OK",
+    headers: response.headers,
+  });
+}

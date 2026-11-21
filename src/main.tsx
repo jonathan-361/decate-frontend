@@ -1,8 +1,13 @@
 import { StrictMode, Suspense, lazy } from "react";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router";
+import { toast } from "sonner";
 import { ThemeProvider } from "@/modules/core/components/ThemeProvider";
-import { registerServiceWorker, watchConnectionStatus } from "@/modules/core/services/serviceWorker";
+import {
+  applyServiceWorkerUpdate,
+  registerServiceWorker,
+  watchConnectionStatus,
+} from "@/modules/core/services/serviceWorker";
 import { setUnauthorizedHandler } from "@/modules/core/services/axios.instance";
 import { useAuthStore, hydrateAuth } from "@/modules/auth/stores/auth.store";
 import { hydrateTheme } from "@/modules/core/stores/theme.store";
@@ -25,7 +30,6 @@ function LoadingScreen() {
 async function bootstrap() {
   // El tema y el usuario salen de IndexedDB: se cargan en segundo plano.
   // NO bloqueamos el render con la hidratación de IndexedDB.
-  // Cargamos en segundo plano, pero renderizamos inmediatamente.
   void hydrateTheme();
   void hydrateAuth();
 
@@ -41,7 +45,13 @@ async function bootstrap() {
     </StrictMode>,
   );
 
-  registerServiceWorker();
+  registerServiceWorker({
+    onUpdateReady: () =>
+      toast("Hay una versión nueva de Dacate", {
+        duration: Infinity,
+        action: { label: "Actualizar", onClick: applyServiceWorkerUpdate },
+      }),
+  });
   watchConnectionStatus();
 }
 
