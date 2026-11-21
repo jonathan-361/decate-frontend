@@ -4,7 +4,7 @@ export interface ApiResponse<T = unknown> {
   success: boolean;
   message: string;
   data?: T;
-  errors?: string[];
+  errors?: { campo: string; mensaje: string }[];
 }
 
 export interface UsuarioAutenticado {

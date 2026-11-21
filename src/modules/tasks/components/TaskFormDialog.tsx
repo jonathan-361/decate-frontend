@@ -19,66 +19,73 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import type { Task, TaskPriority, TaskStatus } from "@/modules/tasks/schemas";
-import { SUBJECTS, SUBJECT_COLORS } from "@/modules/tasks/data/mockTasks";
+import { priorityConfig } from "@/components/custom";
+import {
+  taskFormSchema,
+  taskPrioritySchema,
+  taskStatusSchema,
+} from "@/modules/tasks/schemas";
+import type { Task, TaskPayload } from "@/modules/tasks/schemas";
+import {
+  ESTADO_LABEL,
+  MATERIAS,
+  MATERIA_COLOR,
+  MATERIA_LABEL,
+} from "@/modules/tasks/data/taskMeta";
+import { toDateInput, toTimeInput } from "@/modules/tasks/utils/taskDate";
 
-const priorityConfig: Record<TaskPriority, { color: string; dotColor: string }> = {
-  Alta: { color: "text-destructive", dotColor: "bg-destructive" },
-  Media: { color: "text-amber-600", dotColor: "bg-amber-500" },
-  Baja: { color: "text-muted-foreground", dotColor: "bg-muted-foreground/50" },
+const EMPTY: TaskPayload = {
+  titulo: "",
+  descripcion: "",
+  materia: "Otra",
+  fechaEntrega: "",
+  hora: "23:59",
+  prioridad: "Media",
+  estado: "Pendiente",
 };
+
+const fromTask = (t: Task): TaskPayload => ({
+  titulo: t.titulo,
+  descripcion: t.descripcion,
+  materia: t.materia,
+  fechaEntrega: toDateInput(t.fechaEntrega),
+  hora: toTimeInput(t.hora),
+  prioridad: t.prioridad,
+  estado: t.estado,
+});
 
 interface TaskFormDialogProps {
   open: boolean;
   onClose: () => void;
   initial?: Task | null;
-  onSave: (task: Omit<Task, "id">) => void;
+  /** Debe resolver sin lanzar: el que llama muestra el error y decide si cierra. */
+  onSave: (payload: TaskPayload) => Promise<void>;
 }
 
-export function TaskFormDialog({ open, onClose, initial, onSave }: TaskFormDialogProps) {
+export function TaskFormDialog({
+  open,
+  onClose,
+  initial,
+  onSave,
+}: TaskFormDialogProps) {
   const isEdit = !!initial;
-  const [title, setTitle] = useState(initial?.title ?? "");
-  const [description, setDescription] = useState(initial?.description ?? "");
-  const [subject, setSubject] = useState(initial?.subject ?? "");
-  const [dueDate, setDueDate] = useState(initial?.dueDate ?? "");
-  const [dueTime, setDueTime] = useState(initial?.dueTime ?? "23:59");
-  const [priority, setPriority] = useState<TaskPriority>(initial?.priority ?? "Media");
-  const [status, setStatus] = useState<TaskStatus>(initial?.status ?? "pendiente");
+  const [form, setForm] = useState<TaskPayload>(EMPTY);
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    if (initial) {
-      setTitle(initial.title);
-      setDescription(initial.description);
-      setSubject(initial.subject);
-      setDueDate(initial.dueDate);
-      setDueTime(initial.dueTime);
-      setPriority(initial.priority);
-      setStatus(initial.status);
-    } else {
-      setTitle("");
-      setDescription("");
-      setSubject("");
-      setDueDate("");
-      setDueTime("23:59");
-      setPriority("Media");
-      setStatus("pendiente");
-    }
+    setForm(initial ? fromTask(initial) : EMPTY);
   }, [initial, open]);
 
-  const handleSave = () => {
-    if (!title.trim()) return;
-    onSave({
-      title: title.trim(),
-      description: description.trim(),
-      subject: subject || "Otra",
-      subjectColor: SUBJECT_COLORS[subject] ?? SUBJECT_COLORS["Otra"],
-      dueDate,
-      dueTime,
-      priority,
-      status,
-      hasAttachment: initial?.hasAttachment ?? false,
-    });
-    onClose();
+  const set = <K extends keyof TaskPayload>(key: K, value: TaskPayload[K]) =>
+    setForm((f) => ({ ...f, [key]: value }));
+
+  const parsed = taskFormSchema.safeParse(form);
+
+  const handleSave = async () => {
+    if (!parsed.success) return;
+    setSaving(true);
+    await onSave(parsed.data);
+    setSaving(false);
   };
 
   return (
@@ -96,7 +103,6 @@ export function TaskFormDialog({ open, onClose, initial, onSave }: TaskFormDialo
         </DialogHeader>
 
         <FieldGroup className="gap-4 py-2">
-          {/* Title */}
           <Field>
             <FieldLabel>
               <Label htmlFor="task-title">Título *</Label>
@@ -104,12 +110,11 @@ export function TaskFormDialog({ open, onClose, initial, onSave }: TaskFormDialo
             <Input
               id="task-title"
               placeholder="Ej. Práctica de laboratorio"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
+              value={form.titulo}
+              onChange={(e) => set("titulo", e.target.value)}
             />
           </Field>
 
-          {/* Description */}
           <Field>
             <FieldLabel>
               <Label htmlFor="task-desc">Descripción</Label>
@@ -118,42 +123,46 @@ export function TaskFormDialog({ open, onClose, initial, onSave }: TaskFormDialo
               id="task-desc"
               placeholder="Detalles de la tarea, instrucciones, notas…"
               className="min-h-20 resize-none"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
+              value={form.descripcion}
+              onChange={(e) => set("descripcion", e.target.value)}
             />
           </Field>
 
-          {/* Subject */}
           <Field>
             <FieldLabel>
               <Label>Materia</Label>
             </FieldLabel>
-            <Select value={subject} onValueChange={(v) => setSubject(v ?? "")}>
+            <Select
+              value={form.materia}
+              items={MATERIA_LABEL}
+              onValueChange={(v) => v && set("materia", v)}
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Selecciona una materia" />
               </SelectTrigger>
               <SelectContent>
-                {SUBJECTS.map((s) => (
-                  <SelectItem key={s} value={s}>
-                    <span className={`inline-block size-2 rounded-full mr-2 ${SUBJECT_COLORS[s]}`} />
-                    {s}
+                {MATERIAS.map((m) => (
+                  <SelectItem key={m} value={m}>
+                    <span
+                      className={`inline-block size-2 rounded-full mr-2 ${MATERIA_COLOR[m]}`}
+                    />
+                    {MATERIA_LABEL[m]}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </Field>
 
-          {/* Date + Time row */}
           <div className="grid grid-cols-2 gap-3">
             <Field>
               <FieldLabel>
-                <Label htmlFor="task-date">Fecha de entrega</Label>
+                <Label htmlFor="task-date">Fecha de entrega *</Label>
               </FieldLabel>
               <Input
                 id="task-date"
                 type="date"
-                value={dueDate}
-                onChange={(e) => setDueDate(e.target.value)}
+                value={form.fechaEntrega}
+                onChange={(e) => set("fechaEntrega", e.target.value)}
               />
             </Field>
             <Field>
@@ -163,26 +172,30 @@ export function TaskFormDialog({ open, onClose, initial, onSave }: TaskFormDialo
               <Input
                 id="task-time"
                 type="time"
-                value={dueTime}
-                onChange={(e) => setDueTime(e.target.value)}
+                value={form.hora}
+                onChange={(e) => set("hora", e.target.value)}
               />
             </Field>
           </div>
 
-          {/* Priority + Status row */}
           <div className="grid grid-cols-2 gap-3">
             <Field>
               <FieldLabel>
                 <Label>Prioridad</Label>
               </FieldLabel>
-              <Select value={priority} onValueChange={(v) => setPriority(v as TaskPriority)}>
+              <Select
+                value={form.prioridad}
+                onValueChange={(v) => v && set("prioridad", v)}
+              >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {(["Alta", "Media", "Baja"] as TaskPriority[]).map((p) => (
+                  {taskPrioritySchema.options.map((p) => (
                     <SelectItem key={p} value={p}>
-                      <span className={`inline-block size-2 rounded-full mr-2 ${priorityConfig[p].dotColor}`} />
+                      <span
+                        className={`inline-block size-2 rounded-full mr-2 ${priorityConfig[p].dotColor}`}
+                      />
                       {p}
                     </SelectItem>
                   ))}
@@ -193,14 +206,20 @@ export function TaskFormDialog({ open, onClose, initial, onSave }: TaskFormDialo
               <FieldLabel>
                 <Label>Estado</Label>
               </FieldLabel>
-              <Select value={status} onValueChange={(v) => setStatus(v as TaskStatus)}>
+              <Select
+                value={form.estado}
+                items={ESTADO_LABEL}
+                onValueChange={(v) => v && set("estado", v)}
+              >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="pendiente">Pendiente</SelectItem>
-                  <SelectItem value="en-proceso">En proceso</SelectItem>
-                  <SelectItem value="completada">Completada</SelectItem>
+                  {taskStatusSchema.options.map((s) => (
+                    <SelectItem key={s} value={s}>
+                      {ESTADO_LABEL[s]}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </Field>
@@ -210,10 +229,10 @@ export function TaskFormDialog({ open, onClose, initial, onSave }: TaskFormDialo
         <Separator />
 
         <div className="flex justify-end gap-2 pt-1">
-          <Button variant="outline" onClick={onClose}>
+          <Button variant="outline" onClick={onClose} disabled={saving}>
             Cancelar
           </Button>
-          <Button onClick={handleSave} disabled={!title.trim()}>
+          <Button onClick={handleSave} disabled={!parsed.success || saving}>
             {isEdit ? "Guardar cambios" : "Crear tarea"}
           </Button>
         </div>
@@ -221,4 +240,3 @@ export function TaskFormDialog({ open, onClose, initial, onSave }: TaskFormDialo
     </Dialog>
   );
 }
-

@@ -1,27 +1,15 @@
 import { create } from "zustand";
-import axios from "axios";
 import { authService } from "@/modules/auth/services/auth.service";
 import { setTokenGetter } from "@/modules/core/services/axios.instance";
+import { getErrorMessage } from "@/modules/core/services/api-error";
 import { idbDelete, idbGet, idbSet } from "@/modules/core/services/indexeddb";
-import type { LoginPayload, RegistroPayload, UsuarioAutenticado } from "@/modules/auth/types/auth.types";
+import type {
+  LoginPayload,
+  RegistroPayload,
+  UsuarioAutenticado,
+} from "@/modules/auth/types/auth.types";
 
 const SESSION_KEY = "dacate-user";
-
-function parseApiErrorMessage(err: unknown, defaultMessage: string): string {
-  if (axios.isAxiosError(err) && err.response?.data) {
-    const data = err.response.data as { message?: string; errors?: string[] };
-    if (Array.isArray(data.errors) && data.errors.length > 0) {
-      return data.errors.join(", ");
-    }
-    if (data.message) {
-      return data.message;
-    }
-  }
-  if (err instanceof Error) {
-    return err.message;
-  }
-  return defaultMessage;
-}
 
 interface AuthState {
   usuario: UsuarioAutenticado | null;
@@ -45,7 +33,7 @@ export const useAuthStore = create<AuthState>()((set) => ({
       await idbSet(SESSION_KEY, res.data);
       set({ usuario: res.data, isAuthenticated: true });
     } catch (err) {
-      throw new Error(parseApiErrorMessage(err, "Error al iniciar sesión"));
+      throw new Error(getErrorMessage(err, "Error al iniciar sesión"));
     }
   },
 
@@ -56,7 +44,7 @@ export const useAuthStore = create<AuthState>()((set) => ({
         throw new Error(res.message || "Error al registrarse");
       }
     } catch (err) {
-      throw new Error(parseApiErrorMessage(err, "Error al registrarse"));
+      throw new Error(getErrorMessage(err, "Error al registrarse"));
     }
   },
 
