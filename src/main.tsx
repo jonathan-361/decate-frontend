@@ -24,7 +24,11 @@ function LoadingScreen() {
 
 async function bootstrap() {
   // El tema y el usuario salen de IndexedDB: se cargan en segundo plano.
-  await Promise.all([hydrateTheme(), hydrateAuth()]);
+  // Usar Promise.race para evitar bloqueos si la carga de IndexedDB tarda demasiado.
+  await Promise.race([
+    Promise.all([hydrateTheme(), hydrateAuth()]),
+    new Promise(resolve => setTimeout(resolve, 3000))
+  ]);
 
   createRoot(document.getElementById("root")!).render(
     <StrictMode>

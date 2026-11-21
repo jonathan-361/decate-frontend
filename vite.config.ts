@@ -88,6 +88,15 @@ export default defineConfig({
             if (id.includes("@base-ui")) {
               return "vendor-base-ui";
             }
+            if (id.includes("lucide-react")) {
+              return "vendor-lucide-react";
+            }
+            if (id.includes("zod")) {
+              return "vendor-zod";
+            }
+            if (id.includes("axios")) {
+              return "vendor-axios";
+            }
           }
         },
       },
