@@ -37,9 +37,12 @@ export const useThemeStore = create<ThemeState>()((set) => ({
 
 /** Lee el tema de IndexedDB y lo aplica antes de que React pinte. */
 export async function hydrateTheme() {
-  const stored = await idbGet<string>(THEME_STORAGE_KEY);
-  const parsed = themeModeSchema.safeParse(stored);
-  const theme = parsed.success ? parsed.data : DEFAULT_THEME;
-  applyTheme(resolveTheme(theme));
-  useThemeStore.setState({ theme });
+  // Usar setTimeout para no bloquear el render
+  setTimeout(async () => {
+    const stored = await idbGet<string>(THEME_STORAGE_KEY);
+    const parsed = themeModeSchema.safeParse(stored);
+    const theme = parsed.success ? parsed.data : DEFAULT_THEME;
+    applyTheme(resolveTheme(theme));
+    useThemeStore.setState({ theme });
+  }, 0);
 }

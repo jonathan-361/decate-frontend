@@ -24,4 +24,5 @@ dist-ssr
 *.sw?
 
 .env
+exportar-proyecto.ps1
 /lighthouse/

@@ -68,10 +68,13 @@ export const useAuthStore = create<AuthState>()((set) => ({
 
 /** Recupera el usuario de IndexedDB antes de renderizar la app. */
 export async function hydrateAuth() {
-  const stored = await idbGet<UsuarioAutenticado>(SESSION_KEY);
-  if (stored) {
-    // shortcut: el token real lo maneja la cookie httpOnly del backend; aquí solo guardamos el usuario
-    setTokenGetter(() => null);
-    useAuthStore.setState({ usuario: stored, isAuthenticated: true });
-  }
+  // Usar setTimeout para no bloquear el render
+  setTimeout(async () => {
+    const stored = await idbGet<UsuarioAutenticado>(SESSION_KEY);
+    if (stored) {
+      // shortcut: el token real lo maneja la cookie httpOnly del backend; aquí solo guardamos el usuario
+      setTokenGetter(() => null);
+      useAuthStore.setState({ usuario: stored, isAuthenticated: true });
+    }
+  }, 0);
 }
