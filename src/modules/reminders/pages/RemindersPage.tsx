@@ -1,10 +1,21 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router";
 import { Plus } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { PageContainer, PageHeader } from "@/components/custom";
 import { paths } from "@/modules/core/routes/paths/path";
+import {
+  checkAndNotifyUpcomingTasks,
+  getNotificationSettings,
+  isNotificationSupported,
+  leadTimeToMinutes,
+  requestNotificationPermission,
+  saveNotificationSettings,
+  showLocalNotification,
+} from "@/modules/core/services/notifications";
+import { useTaskStore } from "@/modules/tasks/stores/task.store";
 import { AlertsMasterSwitch } from "@/modules/reminders/components/AlertsMasterSwitch";
 import { NotificationHistory } from "@/modules/reminders/components/NotificationHistory";
 import { ReminderRuleCard } from "@/modules/reminders/components/ReminderRuleCard";
@@ -28,92 +39,149 @@ function CountChip({ value }: { value: number }) {
 }
 
 export default function RemindersPage() {
-  // Estado local solo para poder revisar el diseño de los interruptores.
-  const [allEnabled, setAllEnabled] = useState(true);
+  const [allEnabled, setAllEnabled] = useState(false);
   const [rules, setRules] = useState(INITIAL_RULES);
+  const tasks = useTaskStore((state) => state.tasks);
+
+  useEffect(() => {
+    void getNotificationSettings().then((settings) => {
+      const granted =
+        isNotificationSupported() && Notification.permission === "granted";
+      setAllEnabled(settings.enabled && granted);
+    });
+  }, []);
+
+  const handleMasterToggle = async (enabled: boolean) => {
+    if (!enabled) {
+      setAllEnabled(false);
+      await saveNotificationSettings({ enabled: false });
+      toast.info("Avisos del navegador pausados");
+      return;
+    }
+
+    if (!isNotificationSupported()) {
+      toast.error("Tu navegador no soporta notificaciones nativas.");
+      return;
+    }
+
+    const permission = await requestNotificationPermission();
+    if (permission !== "granted") {
+      setAllEnabled(false);
+      await saveNotificationSettings({ enabled: false });
+      toast.error(
+        "Permiso denegado. Habilita las notificaciones en la configuración de tu navegador.",
+      );
+      return;
+    }
+
+    setAllEnabled(true);
+    await saveNotificationSettings({
+      enabled: true,
+      taskLeadMinutes: leadTimeToMinutes(rules.task.leadTime),
+    });
+    toast.success("Avisos del navegador activados");
+
+    await showLocalNotification("Avisos activados en Dacate", {
+      body: "Te notificaremos cuando tengas tareas próximas a vencer.",
+      url: paths.reminders,
+    });
+
+    if (tasks.length > 0) {
+      await checkAndNotifyUpcomingTasks(tasks);
+    }
+  };
 
   const updateRule = (
     category: ReminderCategory,
     patch: Partial<ReminderRule>,
-  ) =>
-    setRules((prev) => ({
-      ...prev,
-      [category]: { ...prev[category], ...patch },
-    }));
+  ) => {
+    setRules((prev) => {
+      const updated = { ...prev[category], ...patch };
+      if (category === "task") {
+        void saveNotificationSettings({
+          taskLeadMinutes: leadTimeToMinutes(updated.leadTime),
+        });
+      }
+      return { ...prev, [category]: updated };
+    });
+  };
 
   const unread = MOCK_NOTIFICATIONS.filter((n) => !n.read).length;
 
   return (
     <PageContainer size="md">
-        <PageHeader
-          title="Recordatorios y avisos"
-          description={`${MOCK_UPCOMING_REMINDERS.length} avisos programados · ${unread} sin leer`}
-          actions={
-            <Button size="sm">
-              <Plus className="size-3.5" />
-              Nuevo recordatorio
-            </Button>
-          }
-        />
+      <PageHeader
+        title="Recordatorios y avisos"
+        description={`${MOCK_UPCOMING_REMINDERS.length} avisos programados · ${unread} sin leer`}
+        actions={
+          <Button size="sm">
+            <Plus className="size-3.5" />
+            Nuevo recordatorio
+          </Button>
+        }
+      />
 
-        <AlertsMasterSwitch enabled={allEnabled} onChange={setAllEnabled} />
+      <AlertsMasterSwitch
+        enabled={allEnabled}
+        onChange={(val) => void handleMasterToggle(val)}
+      />
 
-        <Tabs defaultValue="upcoming">
-          <TabsList
-            variant="line"
-            className="h-auto w-full justify-start rounded-none border-b border-border pb-0"
-          >
-            <TabsTrigger value="upcoming" className="relative pb-3">
-              Próximos
-              <CountChip value={MOCK_UPCOMING_REMINDERS.length} />
-            </TabsTrigger>
-            <TabsTrigger value="rules" className="relative pb-3">
-              Anticipación
-            </TabsTrigger>
-            <TabsTrigger value="history" className="relative pb-3">
-              Historial
-              {unread > 0 && <CountChip value={unread} />}
-            </TabsTrigger>
-          </TabsList>
+      <Tabs defaultValue="upcoming">
+        <TabsList
+          variant="line"
+          className="h-auto w-full justify-start rounded-none border-b border-border pb-0"
+        >
+          <TabsTrigger value="upcoming" className="relative pb-3">
+            Próximos
+            <CountChip value={MOCK_UPCOMING_REMINDERS.length} />
+          </TabsTrigger>
+          <TabsTrigger value="rules" className="relative pb-3">
+            Anticipación
+          </TabsTrigger>
+          <TabsTrigger value="history" className="relative pb-3">
+            Historial
+            {unread > 0 && <CountChip value={unread} />}
+          </TabsTrigger>
+        </TabsList>
 
-          <TabsContent value="upcoming" className="mt-4">
-            <UpcomingReminders
-              reminders={MOCK_UPCOMING_REMINDERS}
-              disabled={!allEnabled}
-            />
-          </TabsContent>
+        <TabsContent value="upcoming" className="mt-4">
+          <UpcomingReminders
+            reminders={MOCK_UPCOMING_REMINDERS}
+            disabled={!allEnabled}
+          />
+        </TabsContent>
 
-          <TabsContent value="rules" className="mt-4 space-y-4">
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-              {CATEGORIES.map((category) => (
-                <ReminderRuleCard
-                  key={category}
-                  category={category}
-                  rule={rules[category]}
-                  disabled={!allEnabled}
-                  onToggle={(enabled) => updateRule(category, { enabled })}
-                  onLeadTimeChange={(leadTime) =>
-                    updateRule(category, { leadTime })
-                  }
-                />
-              ))}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              El correo de resumen y los sonidos se ajustan en{" "}
-              <Link
-                to={paths.settings}
-                className="font-medium text-foreground underline underline-offset-4"
-              >
-                Configuración
-              </Link>
-              .
-            </p>
-          </TabsContent>
+        <TabsContent value="rules" className="mt-4 space-y-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+            {CATEGORIES.map((category) => (
+              <ReminderRuleCard
+                key={category}
+                category={category}
+                rule={rules[category]}
+                disabled={!allEnabled}
+                onToggle={(enabled) => updateRule(category, { enabled })}
+                onLeadTimeChange={(leadTime) =>
+                  updateRule(category, { leadTime })
+                }
+              />
+            ))}
+          </div>
+          <p className="text-xs text-muted-foreground">
+            El correo de resumen y los sonidos se ajustan en{" "}
+            <Link
+              to={paths.settings}
+              className="font-medium text-foreground underline underline-offset-4"
+            >
+              Configuración
+            </Link>
+            .
+          </p>
+        </TabsContent>
 
-          <TabsContent value="history" className="mt-4">
-            <NotificationHistory entries={MOCK_NOTIFICATIONS} />
-          </TabsContent>
-        </Tabs>
-      </PageContainer>
+        <TabsContent value="history" className="mt-4">
+          <NotificationHistory entries={MOCK_NOTIFICATIONS} />
+        </TabsContent>
+      </Tabs>
+    </PageContainer>
   );
 }

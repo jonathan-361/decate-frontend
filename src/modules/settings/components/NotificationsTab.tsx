@@ -1,8 +1,18 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router";
+import { BellRing } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { paths } from "@/modules/core/routes/paths/path";
+import {
+  getNotificationSettings,
+  isNotificationSupported,
+  requestNotificationPermission,
+  saveNotificationSettings,
+  showLocalNotification,
+} from "@/modules/core/services/notifications";
 
 interface NotificationsTabProps {
   notifyEmail: boolean;
@@ -11,13 +21,57 @@ interface NotificationsTabProps {
   onSoundEnabledChange: (val: boolean) => void;
 }
 
-/** Solo canales de entrega. Qué avisar y con cuánta anticipación vive en Recordatorios. */
+/** Canales de entrega. Qué avisar y con cuánta anticipación vive en Recordatorios. */
 export function NotificationsTab({
   notifyEmail,
   onNotifyEmailChange,
   soundEnabled,
   onSoundEnabledChange,
 }: NotificationsTabProps) {
+  const [browserEnabled, setBrowserEnabled] = useState(false);
+
+  useEffect(() => {
+    void getNotificationSettings().then((settings) => {
+      const granted =
+        isNotificationSupported() && Notification.permission === "granted";
+      setBrowserEnabled(settings.enabled && granted);
+    });
+  }, []);
+
+  const handleBrowserToggle = async (checked: boolean) => {
+    if (!checked) {
+      setBrowserEnabled(false);
+      await saveNotificationSettings({ enabled: false });
+      return;
+    }
+
+    if (!isNotificationSupported()) {
+      toast.error("Tu navegador no soporta notificaciones nativas.");
+      return;
+    }
+
+    const permission = await requestNotificationPermission();
+    if (permission !== "granted") {
+      setBrowserEnabled(false);
+      await saveNotificationSettings({ enabled: false });
+      toast.error(
+        "Permiso denegado. Habilita las notificaciones en la configuración de tu navegador.",
+      );
+      return;
+    }
+
+    setBrowserEnabled(true);
+    await saveNotificationSettings({ enabled: true });
+    toast.success("Notificaciones del navegador activadas");
+  };
+
+  const handleTestNotification = async () => {
+    await showLocalNotification("Prueba de notificación · Dacate", {
+      body: "Así se verán tus recordatorios de tareas próximas.",
+      url: paths.tasks,
+    });
+  };
+
   return (
     <div className="space-y-6">
       <div className="space-y-6 border border-border bg-card p-6">
@@ -32,6 +86,39 @@ export function NotificationsTab({
 
         <div className="space-y-4 divide-y divide-border">
           <div className="flex items-center justify-between pt-2">
+            <div className="space-y-0.5 pr-4">
+              <Label
+                htmlFor="notify-browser"
+                className="text-xs font-semibold text-foreground"
+              >
+                Notificaciones en el navegador
+              </Label>
+              <p className="text-[11px] text-muted-foreground">
+                Muestra alertas nativas del sistema operativo antes de tus
+                entregas mientras Dacate esté abierto.
+              </p>
+            </div>
+            <div className="flex items-center gap-2 shrink-0">
+              {browserEnabled && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => void handleTestNotification()}
+                >
+                  <BellRing className="size-3.5" />
+                  Probar
+                </Button>
+              )}
+              <Switch
+                id="notify-browser"
+                checked={browserEnabled}
+                onCheckedChange={(val) => void handleBrowserToggle(val)}
+              />
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between pt-4">
             <div className="space-y-0.5 pr-4">
               <Label
                 htmlFor="notify-email"

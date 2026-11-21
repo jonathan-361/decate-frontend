@@ -23,7 +23,9 @@ export function isServiceWorkerSupported(): boolean {
 }
 
 /** Registra el Service Worker y gestiona su ciclo de vida. */
-export function registerServiceWorker(options: ServiceWorkerOptions = {}): void {
+export function registerServiceWorker(
+  options: ServiceWorkerOptions = {},
+): void {
   if (!isServiceWorkerSupported()) return;
   if (!import.meta.env.PROD) return;
 
@@ -40,7 +42,10 @@ export function registerServiceWorker(options: ServiceWorkerOptions = {}): void 
             if (!installingWorker) return;
 
             installingWorker.addEventListener("statechange", () => {
-              if (installingWorker.state === "installed" && navigator.serviceWorker.controller) {
+              if (
+                installingWorker.state === "installed" &&
+                navigator.serviceWorker.controller
+              ) {
                 updateAvailable = true;
                 options.onUpdateReady?.(reg);
               }
@@ -54,16 +59,21 @@ export function registerServiceWorker(options: ServiceWorkerOptions = {}): void 
 
           // Limpieza periodica de las caches (si el navegador lo soporta).
           try {
-            const sync = (reg as ServiceWorkerRegistration & {
-              periodicSync?: { register(tag: string): Promise<void> };
-            }).periodicSync;
+            const sync = (
+              reg as ServiceWorkerRegistration & {
+                periodicSync?: { register(tag: string): Promise<void> };
+              }
+            ).periodicSync;
             if (sync) await sync.register(CLEANUP_SYNC_TAG);
           } catch {
             // periodicSync no disponible: la limpieza ocurre al activar la SW.
           }
         })
         .catch((error: unknown) => {
-          console.warn("[dacate] No se pudo registrar el Service Worker:", error);
+          console.warn(
+            "[dacate] No se pudo registrar el Service Worker:",
+            error,
+          );
         });
     },
     { once: true },
@@ -92,7 +102,10 @@ export function clearServiceWorkerApiCache(): void {
 /** Precachea de forma explicita una lista de URLs. */
 export function precacheServiceWorkerUrls(urls: string[]): void {
   if (!urls.length) return;
-  navigator.serviceWorker?.controller?.postMessage({ type: "CACHE_URLS", urls });
+  navigator.serviceWorker?.controller?.postMessage({
+    type: "CACHE_URLS",
+    urls,
+  });
 }
 
 /** Devuelve el identificador de build de la Service Worker activa. */
@@ -108,7 +121,9 @@ export function getServiceWorkerVersion(): Promise<string | null> {
       resolve((event.data as { buildId?: string } | null)?.buildId ?? null);
     };
 
-    navigator.serviceWorker.controller?.postMessage({ type: "GET_VERSION" }, [channel.port2]);
+    navigator.serviceWorker.controller?.postMessage({ type: "GET_VERSION" }, [
+      channel.port2,
+    ]);
   });
 }
 
@@ -122,7 +137,9 @@ export function watchConnectionStatus(): void {
   const publish = () => {
     const online = navigator.onLine;
     document.documentElement.dataset.online = online ? "true" : "false";
-    window.dispatchEvent(new CustomEvent("dacate:connection-change", { detail: { online } }));
+    window.dispatchEvent(
+      new CustomEvent("dacate:connection-change", { detail: { online } }),
+    );
   };
 
   window.addEventListener("online", publish);

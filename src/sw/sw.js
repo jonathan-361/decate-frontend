@@ -34,7 +34,10 @@ const CACHES = {
 const CORE_SHELL = ["/", "/index.html", "/manifest.json", "/offline.html"];
 
 const PRECACHE_URLS = Array.from(
-  new Set([...CORE_SHELL, ...(Array.isArray(PRECACHE_MANIFEST) ? PRECACHE_MANIFEST : [])]),
+  new Set([
+    ...CORE_SHELL,
+    ...(Array.isArray(PRECACHE_MANIFEST) ? PRECACHE_MANIFEST : []),
+  ]),
 );
 
 const API_MAX_AGE = 5 * 60 * 1000; // 5 minutos
@@ -153,7 +156,8 @@ async function staleWhileRevalidate(request, cacheName, event) {
 
   if (cached) {
     // Refresco en segundo plano, sin bloquear la respuesta.
-    if (event && typeof event.waitUntil === "function") event.waitUntil(networkPromise);
+    if (event && typeof event.waitUntil === "function")
+      event.waitUntil(networkPromise);
     return cached;
   }
 
@@ -163,13 +167,19 @@ async function staleWhileRevalidate(request, cacheName, event) {
 }
 
 /** Network First con timeout: prioriza datos frescos y cae en la cache. */
-async function networkFirst(request, cacheName, { timeout = API_TIMEOUT, maxAge = null } = {}) {
+async function networkFirst(
+  request,
+  cacheName,
+  { timeout = API_TIMEOUT, maxAge = null } = {},
+) {
   const cache = await caches.open(cacheName);
 
   try {
     const response = await fetchWithTimeout(request, timeout);
     if (response && response.ok && response.type !== "opaque") {
-      const stored = maxAge ? await withTimestamp(response.clone()) : response.clone();
+      const stored = maxAge
+        ? await withTimestamp(response.clone())
+        : response.clone();
       await cache.put(request, stored);
     }
     return response;
@@ -205,7 +215,10 @@ async function handleNavigation(event) {
     if (response && response.ok) return response;
     throw new Error("bad response");
   } catch {
-    const shell = await cache.match("/index.html") || await cache.match("/") || await caches.match("/offline.html");
+    const shell =
+      (await cache.match("/index.html")) ||
+      (await cache.match("/")) ||
+      (await caches.match("/offline.html"));
     return shell || offlineResponse();
   }
 }
@@ -218,8 +231,6 @@ self.addEventListener("install", (event) => {
   event.waitUntil(
     (async () => {
       const cache = await caches.open(CACHES.precache);
-      // Se precachean los recursosCriticos; un fallo puntual no debe
-      // impedir la instalacion del SW. Se ejecuta en segundo plano para no bloquear.
       PRECACHE_URLS.forEach(async (url) => {
         try {
           const request = new Request(url, { cache: "reload" });
@@ -240,12 +251,14 @@ self.addEventListener("activate", (event) => {
       const keys = await caches.keys();
       await Promise.all(
         keys
-          .filter((key) => key.startsWith(CACHE_PREFIX) && !Object.values(CACHES).includes(key))
+          .filter(
+            (key) =>
+              key.startsWith(CACHE_PREFIX) &&
+              !Object.values(CACHES).includes(key),
+          )
           .map((key) => caches.delete(key)),
       );
 
-      // Precarga de navegacion: las navegaciones salen de la red mientras se
-      // descarga la respuesta en segundo plano.
       try {
         if (self.registration.navigationPreload) {
           await self.registration.navigationPreload.enable();
@@ -280,14 +293,19 @@ self.addEventListener("message", (event) => {
         await Promise.all(
           urls.map(async (url) => {
             try {
-              const response = await fetch(new Request(url, { cache: "reload" }));
+              const response = await fetch(
+                new Request(url, { cache: "reload" }),
+              );
               if (response && response.ok) await cache.put(url, response);
             } catch {
               /* ignore */
             }
           }),
         );
-        event.source?.postMessage({ type: "CACHE_URLS_DONE", count: urls.length });
+        event.source?.postMessage({
+          type: "CACHE_URLS_DONE",
+          count: urls.length,
+        });
       })(),
     );
     return;
@@ -329,23 +347,28 @@ self.addEventListener("fetch", (event) => {
   // API -> Network First con TTL. Solo se cachean peticiones GET propias.
   if (isApiRequest(request, url)) {
     event.respondWith(
-      networkFirst(request, CACHES.api, { timeout: API_TIMEOUT, maxAge: API_MAX_AGE }).catch(
-        () => offlineResponse("offline"),
-      ),
+      networkFirst(request, CACHES.api, {
+        timeout: API_TIMEOUT,
+        maxAge: API_MAX_AGE,
+      }).catch(() => offlineResponse("offline")),
     );
     return;
   }
 
   // Build assets (hash en el nombre) -> Cache First, son inmutables.
   if (url.pathname.startsWith("/assets/")) {
-    event.respondWith(cacheFirst(request, CACHES.assets).catch(() => offlineResponse()));
+    event.respondWith(
+      cacheFirst(request, CACHES.assets).catch(() => offlineResponse()),
+    );
     return;
   }
 
   // Imagenes e iconos -> Stale While Revalidate.
   if (isImageRequest(url)) {
     event.respondWith(
-      staleWhileRevalidate(request, CACHES.images, event).catch(() => offlineResponse()),
+      staleWhileRevalidate(request, CACHES.images, event).catch(() =>
+        offlineResponse(),
+      ),
     );
     event.waitUntil(trimCache(CACHES.images, IMAGE_CACHE_LIMIT));
     return;
@@ -354,7 +377,9 @@ self.addEventListener("fetch", (event) => {
   // Resto de estaticos (fuentes, css, manifest...) -> Stale While Revalidate.
   if (isStaticAsset(url)) {
     event.respondWith(
-      staleWhileRevalidate(request, CACHES.runtime, event).catch(() => offlineResponse()),
+      staleWhileRevalidate(request, CACHES.runtime, event).catch(() =>
+        offlineResponse(),
+      ),
     );
     return;
   }
@@ -371,5 +396,28 @@ self.addEventListener("periodicsync", (event) => {
       await trimCache(CACHES.images, IMAGE_CACHE_LIMIT);
       await trimCache(CACHES.api, API_CACHE_LIMIT);
     })(),
+  );
+});
+
+/* ------------------------------------------------------------------ *
+ * Notificaciones locales
+ * ------------------------------------------------------------------ */
+
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+  const targetUrl = event.notification.data?.url || "/tasks";
+
+  event.waitUntil(
+    self.clients
+      .matchAll({ type: "window", includeUncontrolled: true })
+      .then((windowClients) => {
+        for (const client of windowClients) {
+          if (client.url.includes(self.location.origin) && "focus" in client) {
+            client.navigate(targetUrl);
+            return client.focus();
+          }
+        }
+        return self.clients.openWindow(targetUrl);
+      }),
   );
 });
