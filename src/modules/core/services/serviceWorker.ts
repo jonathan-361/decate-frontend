@@ -29,13 +29,31 @@ export function registerServiceWorker(
   if (!isServiceWorkerSupported()) return;
   if (!import.meta.env.PROD) return;
 
+  // Cuando una version nueva toma el control, se recarga la pagina para que
+  // el JS de la pestana coincida con la SW activa. No se recarga en la primera
+  // instalacion (no habia controlador previo).
+  const teniaControlador = Boolean(navigator.serviceWorker.controller);
+  let recargando = false;
+  navigator.serviceWorker.addEventListener("controllerchange", () => {
+    if (!teniaControlador || recargando) return;
+    recargando = true;
+    window.location.reload();
+  });
+
   window.addEventListener(
     "load",
     () => {
       navigator.serviceWorker
-        .register(SW_URL, { scope: SW_SCOPE })
+        // updateViaCache: "none" -> el sw.js nunca se sirve desde la cache HTTP.
+        .register(SW_URL, { scope: SW_SCOPE, updateViaCache: "none" })
         .then(async (reg) => {
           registration = reg;
+
+          // Si ya habia una version esperando (pestana abierta de antes), avisa.
+          if (reg.waiting && navigator.serviceWorker.controller) {
+            updateAvailable = true;
+            options.onUpdateReady?.(reg);
+          }
 
           reg.addEventListener("updatefound", () => {
             const installingWorker = reg.installing;

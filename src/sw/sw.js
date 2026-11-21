@@ -6,16 +6,20 @@
  *
  *   | Tipo de recurso        | Estrategia                              | Cache            |
  *   |-------------------------|-----------------------------------------|------------------|
- *   | App shell (instalacion)| Precache (`cache.addAll`)               | `precache`       |
+ *   | App shell (instalacion)| Precache (Promise.all + put)            | `precache`       |
  *   | Documentos (navegacion) | Network First + timeout + fallback SPA  | `precache`       |
  *   | Build assets (`/assets`)| Cache First (contenido inmutable)       | `assets`         |
  *   | Iconos / imagenes       | Stale While Revalidate                  | `images`         |
- *   | API (GET)               | Network First + TTL de 5 min            | `api`            |
+ *   | API (GET, mismo origen) | Network First + TTL de 5 min            | `api`            |
  *   | API (mutaciones)        | Network only (nunca se cachean)         | -                |
  *   | Fuentes / estaticos     | Stale While Revalidate                  | `runtime`        |
+ *   | Cualquier otra cosa     | Sin interceptar (la resuelve el navegador) | -             |
  *
  * Los valores de precache y de build se inyectan en el bundle final mediante
  * el plugin de Vite (`vite.config.ts`).
+ *
+ * Actualizaciones: la version nueva NO se activa sola. Queda en espera hasta
+ * que la pagina envia `SKIP_WAITING` (ver `applyServiceWorkerUpdate`).
  */
 
 const BUILD_ID = "__BUILD_ID__";
@@ -32,6 +36,9 @@ const CACHES = {
 
 /** Shell minimo que siempre debe estar disponible sin red. */
 const CORE_SHELL = ["/", "/index.html", "/manifest.json", "/offline.html"];
+
+/** Rutas que SI son HTML: el resto del precache no deberia serlo. */
+const HTML_PRECACHE_URLS = new Set(["/", "/index.html", "/offline.html"]);
 
 const PRECACHE_URLS = Array.from(
   new Set([
@@ -73,6 +80,15 @@ function isImageRequest(url) {
   return /\.(?:svg|png|jpe?g|webp|gif|avif|ico)$/i.test(url.pathname);
 }
 
+/**
+ * Con el fallback de SPA de Cloudflare, un archivo que no existe devuelve
+ * index.html con 200. Esto detecta ese caso para no cachearlo como si fuera
+ * un JS, CSS o imagen.
+ */
+function isHtmlResponse(response) {
+  return (response.headers.get("content-type") || "").includes("text/html");
+}
+
 /** Clona una respuesta anadiendo la marca de tiempo de cache. */
 async function withTimestamp(response) {
   const body = await response.clone().blob();
@@ -92,7 +108,7 @@ function isFresh(response, maxAge) {
   return Date.now() - cachedAt < maxAge;
 }
 
-/** fetch con timeout using AbortController. */
+/** fetch con timeout usando AbortController. */
 async function fetchWithTimeout(request, timeout) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeout);
@@ -134,7 +150,12 @@ async function cacheFirst(request, cacheName) {
   if (cached) return cached;
 
   const response = await fetch(request);
-  if (response && response.ok && response.type !== "opaque") {
+  if (
+    response &&
+    response.ok &&
+    response.type !== "opaque" &&
+    !isHtmlResponse(response)
+  ) {
     await cache.put(request, response.clone());
   }
   return response;
@@ -147,7 +168,12 @@ async function staleWhileRevalidate(request, cacheName, event) {
 
   const networkPromise = fetch(request)
     .then(async (response) => {
-      if (response && response.ok && response.type !== "opaque") {
+      if (
+        response &&
+        response.ok &&
+        response.type !== "opaque" &&
+        !isHtmlResponse(response)
+      ) {
         await cache.put(request, response.clone());
       }
       return response;
@@ -186,10 +212,8 @@ async function networkFirst(
   } catch {
     const cached = await cache.match(request);
     if (cached) {
-      if (maxAge && !isFresh(cached, maxAge)) {
-        // Respuesta expirada: aun asi se sirve como ultimo recurso offline.
-        return cached;
-      }
+      // Si esta expirada (`!isFresh`) igual se sirve: es el ultimo recurso offline.
+      if (maxAge && !isFresh(cached, maxAge)) return cached;
       return cached;
     }
     throw new Error("offline");
@@ -218,7 +242,7 @@ async function handleNavigation(event) {
     const shell =
       (await cache.match("/index.html")) ||
       (await cache.match("/")) ||
-      (await caches.match("/offline.html"));
+      (await cache.match("/offline.html"));
     return shell || offlineResponse();
   }
 }
@@ -231,16 +255,30 @@ self.addEventListener("install", (event) => {
   event.waitUntil(
     (async () => {
       const cache = await caches.open(CACHES.precache);
-      PRECACHE_URLS.forEach(async (url) => {
-        try {
-          const request = new Request(url, { cache: "reload" });
-          const response = await fetch(request);
-          if (response && response.ok) await cache.put(request, response);
-        } catch {
-          /* recurso no disponible en este momento */
-        }
-      });
-      await self.skipWaiting();
+
+      // Se espera a que termine TODO el precache antes de dar la instalacion
+      // por buena (antes se usaba forEach(async ...) y no esperaba nada).
+      await Promise.all(
+        PRECACHE_URLS.map(async (url) => {
+          try {
+            const response = await fetch(new Request(url, { cache: "reload" }));
+            const esperaHtml = HTML_PRECACHE_URLS.has(url);
+            if (
+              response &&
+              response.ok &&
+              (esperaHtml || !isHtmlResponse(response))
+            ) {
+              await cache.put(url, response);
+            }
+          } catch {
+            /* recurso no disponible en este momento */
+          }
+        }),
+      );
+
+      // Sin skipWaiting(): la version nueva espera a que el usuario la acepte
+      // (mensaje SKIP_WAITING). En la primera instalacion no hay SW previa,
+      // asi que se activa sola.
     })(),
   );
 });
@@ -330,9 +368,15 @@ self.addEventListener("fetch", (event) => {
 
   if (request.method !== "GET") return; // las mutaciones siempre van a la red
 
+  // Sondas del navegador de solo cache: no se pueden resolver con fetch().
+  if (request.cache === "only-if-cached" && request.mode !== "same-origin") {
+    return;
+  }
+
   const url = new URL(request.url);
 
-  // No interceptamos otras origenes que no sean la propia app (p.ej. Unsplash).
+  // No interceptamos otros origenes que no sean la propia app
+  // (p.ej. Unsplash o el backend en onrender.com).
   if (url.origin !== self.location.origin) return;
 
   // Peticiones con rango (video/audio) requieren streaming: no cacheamos.
@@ -344,7 +388,7 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // API -> Network First con TTL. Solo se cachean peticiones GET propias.
+  // API -> Network First con TTL. Solo aplica si la API vive en el mismo origen.
   if (isApiRequest(request, url)) {
     event.respondWith(
       networkFirst(request, CACHES.api, {
@@ -384,8 +428,8 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // Cualquier otra peticion -> red directa.
-  event.respondWith(fetch(request).catch(() => offlineResponse()));
+  // Cualquier otra peticion: no se intercepta. La resuelve el navegador y no
+  // aparecen errores del SW en DevTools (antes: respondWith(fetch(request))).
 });
 
 // Limpieza periodica de caches cuando la SW queda inactiva.
