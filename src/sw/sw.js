@@ -89,6 +89,21 @@ function isHtmlResponse(response) {
   return (response.headers.get("content-type") || "").includes("text/html");
 }
 
+/**
+ * Una respuesta que viene de una redireccion (`redirected: true`) no se puede
+ * servir a una navegacion: el navegador la rechaza y muestra su pagina de error.
+ * Cloudflare redirige /index.html -> / y /offline.html -> /offline, asi que se
+ * guarda una copia limpia.
+ */
+async function cleanCopy(response) {
+  if (!response.redirected) return response;
+  return new Response(await response.blob(), {
+    status: 200,
+    statusText: "OK",
+    headers: response.headers,
+  });
+}
+
 /** Clona una respuesta anadiendo la marca de tiempo de cache. */
 async function withTimestamp(response) {
   const body = await response.clone().blob();
@@ -243,7 +258,7 @@ async function handleNavigation(event) {
       (await cache.match("/index.html")) ||
       (await cache.match("/")) ||
       (await cache.match("/offline.html"));
-    return shell || offlineResponse();
+    return shell ? cleanCopy(shell) : offlineResponse();
   }
 }
 
@@ -268,7 +283,7 @@ self.addEventListener("install", (event) => {
               response.ok &&
               (esperaHtml || !isHtmlResponse(response))
             ) {
-              await cache.put(url, response);
+              await cache.put(url, await cleanCopy(response));
             }
           } catch {
             /* recurso no disponible en este momento */
@@ -465,13 +480,3 @@ self.addEventListener("notificationclick", (event) => {
       }),
   );
 });
-
-/** Una respuesta que viene de una redirección no se puede servir a una navegación. */
-async function cleanCopy(response) {
-  if (!response.redirected) return response;
-  return new Response(await response.blob(), {
-    status: 200,
-    statusText: "OK",
-    headers: response.headers,
-  });
-}

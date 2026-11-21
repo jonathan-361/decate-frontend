@@ -3,6 +3,7 @@ import { authService } from "@/modules/auth/services/auth.service";
 import { setTokenGetter } from "@/modules/core/services/axios.instance";
 import { getErrorMessage } from "@/modules/core/services/api-error";
 import { idbDelete, idbGet, idbSet } from "@/modules/core/services/indexeddb";
+import { useTaskStore, TASKS_KEY } from "@/modules/tasks/stores/task.store";
 import type {
   LoginPayload,
   RegistroPayload,
@@ -50,6 +51,9 @@ export const useAuthStore = create<AuthState>()((set) => ({
 
   logout: () => {
     void idbDelete(SESSION_KEY);
+    // Borra la copia local de tareas para no mostrarlas a otra cuenta en este dispositivo.
+    void idbDelete(TASKS_KEY);
+    useTaskStore.setState({ tasks: [] });
     set({ usuario: null, isAuthenticated: false });
   },
 }));

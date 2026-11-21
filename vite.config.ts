@@ -38,7 +38,7 @@ function dacateServiceWorker(): Plugin {
       };
 
       for (const [fileName, output] of Object.entries(bundle)) {
-        if (output.type === "chunk" && output.isEntry) {
+        if (output.type === "chunk") {
           collectInitialChunk(fileName);
         }
       }
@@ -56,7 +56,10 @@ function dacateServiceWorker(): Plugin {
         .slice(0, 12);
 
       const source = readFileSync(swPath, "utf8")
-        .replace("self.__PRECACHE_MANIFEST__", JSON.stringify(precache, null, 2))
+        .replace(
+          "self.__PRECACHE_MANIFEST__",
+          JSON.stringify(precache, null, 2),
+        )
         .replaceAll("__BUILD_ID__", buildId);
 
       this.emitFile({ type: "asset", fileName: "sw.js", source });
@@ -82,7 +85,12 @@ export default defineConfig({
       output: {
         manualChunks(id) {
           if (id.includes("node_modules")) {
-            if (id.includes("react-router") || id.includes("react-dom") || id.includes("/react/") || id.endsWith("/react")) {
+            if (
+              id.includes("react-router") ||
+              id.includes("react-dom") ||
+              id.includes("/react/") ||
+              id.endsWith("/react")
+            ) {
               return "vendor-react";
             }
             if (id.includes("@base-ui")) {
