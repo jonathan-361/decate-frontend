@@ -19,7 +19,10 @@ import {
 } from "@/components/ui/field";
 import { Separator } from "@/components/ui/separator";
 import { AuthLayout } from "@/modules/auth/components/AuthLayout";
-import { loginSchema, type LoginFormValues } from "@/modules/auth/schemas";
+import {
+  loginSchema,
+  type LoginFormValues,
+} from "@/modules/auth/schemas/login.schema";
 
 function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);

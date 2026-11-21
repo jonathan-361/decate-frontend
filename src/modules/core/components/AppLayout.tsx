@@ -28,6 +28,7 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { clearServiceWorkerApiCache } from "@/modules/core/services/serviceWorker";
 import { useAuthStore } from "@/modules/auth/stores/auth.store";
 
@@ -49,7 +50,8 @@ function AppLayout({ children }: AppLayoutProps) {
   const logout = useAuthStore((s) => s.logout);
 
   return (
-    <SidebarProvider>
+    <TooltipProvider>
+      <SidebarProvider>
       <Sidebar collapsible="icon">
         {/* Logo */}
         <SidebarHeader className="border-b border-sidebar-border">
@@ -154,7 +156,8 @@ function AppLayout({ children }: AppLayoutProps) {
 
         <main className="flex-1 p-6">{children ?? <Outlet />}</main>
       </SidebarInset>
-    </SidebarProvider>
+      </SidebarProvider>
+    </TooltipProvider>
   );
 }
 

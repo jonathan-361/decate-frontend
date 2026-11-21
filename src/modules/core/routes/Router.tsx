@@ -1,9 +1,13 @@
 import { lazy, Suspense } from "react";
 import { Routes, Route, Navigate } from "react-router";
 import { paths } from "@/modules/core/routes/paths/path";
-import { AppLayout } from "@/modules/core/components/AppLayout";
 import { PrivateGuard, PublicGuard } from "@/modules/core/routes/guards";
 
+const AppLayout = lazy(() =>
+  import("@/modules/core/components/AppLayout").then((module) => ({
+    default: module.AppLayout,
+  }))
+);
 const LoginPage = lazy(() => import("@/modules/auth/pages/LoginPage"));
 const RegisterPage = lazy(() => import("@/modules/auth/pages/RegisterPage"));
 const ForgotPasswordPage = lazy(() => import("@/modules/auth/pages/ForgotPasswordPage"));

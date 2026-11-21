@@ -33,7 +33,7 @@ import {
   changePasswordResetSchema,
   type ChangePasswordEmailFormValues,
   type ChangePasswordResetFormValues,
-} from "@/modules/auth/schemas";
+} from "@/modules/auth/schemas/change-password.schema";
 
 // ── Step 1 view ────────────────────────────────────────────────────────────────
 function StepEmail({

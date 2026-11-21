@@ -15,7 +15,10 @@ import {
 } from "@/components/ui/field";
 import { AuthLayout } from "@/modules/auth/components/AuthLayout";
 import { paths } from "@/modules/core/routes/paths/path";
-import { forgotPasswordSchema, type ForgotPasswordFormValues } from "@/modules/auth/schemas";
+import {
+  forgotPasswordSchema,
+  type ForgotPasswordFormValues,
+} from "@/modules/auth/schemas/forgot-password.schema";
 
 function ForgotPasswordPage() {
   const [submitted, setSubmitted] = useState(false);

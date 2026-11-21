@@ -17,7 +17,10 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { AuthLayout } from "@/modules/auth/components/AuthLayout";
 import { paths } from "@/modules/core/routes/paths/path";
-import { registerSchema, type RegisterFormValues } from "@/modules/auth/schemas";
+import {
+  registerSchema,
+  type RegisterFormValues,
+} from "@/modules/auth/schemas/register.schema";
 import { useAuthStore } from "@/modules/auth/stores/auth.store";
 
 function RegisterPage() {
