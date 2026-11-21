@@ -1,7 +1,6 @@
-import { StrictMode } from "react";
+import { StrictMode, Suspense, lazy } from "react";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router";
-import AppRouter from "@/modules/core/routes/Router";
 import { ThemeProvider } from "@/modules/core/components/ThemeProvider";
 import { registerServiceWorker, watchConnectionStatus } from "@/modules/core/services/serviceWorker";
 import { setUnauthorizedHandler } from "@/modules/core/services/axios.instance";
@@ -13,15 +12,27 @@ setUnauthorizedHandler(() => {
   useAuthStore.getState().logout();
 });
 
+const App = lazy(() => import("@/modules/core/routes/Router"));
+
+function LoadingScreen() {
+  return (
+    <div className="flex items-center justify-center min-h-screen bg-background">
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+    </div>
+  );
+}
+
 async function bootstrap() {
-  // El tema y el usuario salen de IndexedDB: se cargan antes de montar la app.
+  // El tema y el usuario salen de IndexedDB: se cargan en segundo plano.
   await Promise.all([hydrateTheme(), hydrateAuth()]);
 
   createRoot(document.getElementById("root")!).render(
     <StrictMode>
       <BrowserRouter>
         <ThemeProvider>
-          <AppRouter />
+          <Suspense fallback={<LoadingScreen />}>
+            <App />
+          </Suspense>
         </ThemeProvider>
       </BrowserRouter>
     </StrictMode>,

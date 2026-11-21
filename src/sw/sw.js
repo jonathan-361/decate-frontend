@@ -38,8 +38,8 @@ const PRECACHE_URLS = Array.from(
 );
 
 const API_MAX_AGE = 5 * 60 * 1000; // 5 minutos
-const NAVIGATION_TIMEOUT = 3000; // 3 segundos
-const API_TIMEOUT = 6000; // 6 segundos
+const NAVIGATION_TIMEOUT = 1500; // 1.5 segundos
+const API_TIMEOUT = 4000; // 4 segundos
 const IMAGE_CACHE_LIMIT = 60;
 const API_CACHE_LIMIT = 80;
 
@@ -205,10 +205,7 @@ async function handleNavigation(event) {
     if (response && response.ok) return response;
     throw new Error("bad response");
   } catch {
-    const shell =
-      (await cache.match("/index.html")) ||
-      (await cache.match("/")) ||
-      (await caches.match("/offline.html"));
+    const shell = await cache.match("/index.html") || await cache.match("/") || await caches.match("/offline.html");
     return shell || offlineResponse();
   }
 }
@@ -222,18 +219,16 @@ self.addEventListener("install", (event) => {
     (async () => {
       const cache = await caches.open(CACHES.precache);
       // Se precachean los recursosCriticos; un fallo puntual no debe
-      // impedir la instalacion del SW.
-      await Promise.all(
-        PRECACHE_URLS.map(async (url) => {
-          try {
-            const request = new Request(url, { cache: "reload" });
-            const response = await fetch(request);
-            if (response && response.ok) await cache.put(request, response);
-          } catch {
-            /* recurso no disponible en este momento */
-          }
-        }),
-      );
+      // impedir la instalacion del SW. Se ejecuta en segundo plano para no bloquear.
+      PRECACHE_URLS.forEach(async (url) => {
+        try {
+          const request = new Request(url, { cache: "reload" });
+          const response = await fetch(request);
+          if (response && response.ok) await cache.put(request, response);
+        } catch {
+          /* recurso no disponible en este momento */
+        }
+      });
       await self.skipWaiting();
     })(),
   );

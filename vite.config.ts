@@ -2,52 +2,51 @@ import react, { reactCompilerPreset } from "@vitejs/plugin-react";
 import babel from "@rolldown/plugin-babel";
 import { defineConfig, type Plugin } from "vite";
 import { createHash } from "node:crypto";
-import { readdirSync, readFileSync, statSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import path from "node:path";
 import tailwindcss from "@tailwindcss/vite";
 
 const rootDir = import.meta.dirname;
 
-/** Lista recursivamente los ficheros de un directorio (relativos, con "/"). */
-function listFiles(dir: string, base = dir): string[] {
-  return readdirSync(dir).flatMap((entry) => {
-    const full = path.join(dir, entry);
-    if (statSync(full).isDirectory()) return listFiles(full, base);
-    return [`/${path.relative(base, full).split(path.sep).join("/")}`];
-  });
-}
-
 /**
  * Genera el Service Worker a partir de `src/sw/sw.js`, inyectando el manifiesto
- * de pre-cache con los ficheros reales del build (JS/CSS hashados, fuentes,
- * iconos y ficheros de `public/`).
+ * de pre-cache con el shell y los assets iniciales del build.
  */
 function dacateServiceWorker(): Plugin {
   const swPath = path.resolve(rootDir, "src/sw/sw.js");
-  const publicDir = path.resolve(rootDir, "public");
 
   return {
     name: "dacate-service-worker",
     apply: "build",
     generateBundle(_options, bundle) {
-      const urls = new Set<string>();
+      const initialChunks = new Set<string>();
+      const initialCss = new Set<string>();
 
-      // Ficheros generados por el build (index.html, assets/*).
-      for (const fileName of Object.keys(bundle)) {
-        urls.add(`/${fileName}`);
+      const collectInitialChunk = (fileName: string) => {
+        if (initialChunks.has(fileName)) return;
+        initialChunks.add(fileName);
+
+        const chunk = bundle[fileName];
+        if (!chunk || chunk.type !== "chunk") return;
+
+        for (const imported of chunk.imports) {
+          collectInitialChunk(imported);
+        }
+        for (const css of chunk.viteMetadata?.importedCss ?? []) {
+          initialCss.add(css);
+        }
+      };
+
+      for (const [fileName, output] of Object.entries(bundle)) {
+        if (output.type === "chunk" && output.isEntry) {
+          collectInitialChunk(fileName);
+        }
       }
 
-      // Ficheros estaticos de public/.
-      for (const file of listFiles(publicDir)) {
-        urls.add(file);
-      }
-
-      const precache = Array.from(urls)
-        .filter((url) => {
-          if (url === "/sw.js") return false;
-          if (/(?:cyrillic|devanagari|greek|vietnamese)/i.test(url)) return false;
-          return true;
-        })
+      const precache = Array.from(initialChunks)
+        .map((fileName) => `/${fileName}`)
+        .concat(Array.from(initialCss, (fileName) => `/${fileName}`))
+        .concat("/index.html")
         .sort();
 
       const buildId = createHash("sha256")
