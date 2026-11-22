@@ -2,8 +2,9 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Eye, EyeOff, LogIn } from "lucide-react";
+import { Eye, EyeOff, Loader2, LogIn } from "lucide-react";
 import { toast } from "sonner";
+import { cn } from "cn";
 import { useAuthStore } from "@/modules/auth/stores/auth.store";
 import { paths } from "@/modules/core/routes/paths/path";
 
@@ -16,6 +17,7 @@ import {
   FieldError,
   FieldGroup,
   FieldLabel,
+  FieldSet,
 } from "@/components/ui/field";
 import { Separator } from "@/components/ui/separator";
 import { AuthLayout } from "@/modules/auth/components/AuthLayout";
@@ -57,87 +59,108 @@ function LoginPage() {
       description="Ingresa tus credenciales para acceder a tu cuenta."
     >
       <form onSubmit={handleSubmit(onSubmit)} noValidate>
-        <FieldGroup className="gap-6">
-          {/* Email */}
-          <Field data-invalid={!!errors.email}>
-            <FieldLabel>
-              <Label htmlFor="email">Correo electrónico</Label>
-            </FieldLabel>
-            <Input
-              id="email"
-              type="email"
-              placeholder="correo@ejemplo.com"
-              autoComplete="email"
-              aria-invalid={!!errors.email}
-              {...register("email")}
-            />
-            {errors.email && (
-              <FieldError errors={[errors.email]} />
-            )}
-          </Field>
-
-          {/* Password */}
-          <Field data-invalid={!!errors.password}>
-            <FieldLabel>
-              <Label htmlFor="password">Contraseña</Label>
-            </FieldLabel>
-            <div className="relative">
+        <FieldSet disabled={isSubmitting} className="border-0 p-0 m-0 min-w-0">
+          <FieldGroup className="gap-6">
+            {/* Email */}
+            <Field data-invalid={!!errors.email}>
+              <FieldLabel>
+                <Label htmlFor="email">Correo electrónico</Label>
+              </FieldLabel>
               <Input
-                id="password"
-                type={showPassword ? "text" : "password"}
-                placeholder="••••••••"
-                autoComplete="current-password"
-                className="pr-10"
-                aria-invalid={!!errors.password}
-                {...register("password")}
+                id="email"
+                type="email"
+                placeholder="correo@ejemplo.com"
+                autoComplete="email"
+                aria-invalid={!!errors.email}
+                disabled={isSubmitting}
+                {...register("email")}
               />
-              <button
-                type="button"
-                onClick={() => setShowPassword((v) => !v)}
-                className="absolute right-0 top-1/2 -translate-y-1/2 p-2 text-muted-foreground hover:text-foreground transition-colors outline-none focus-visible:text-foreground"
-                aria-label={
-                  showPassword ? "Ocultar contraseña" : "Mostrar contraseña"
-                }
-              >
-                {showPassword ? (
-                  <EyeOff className="size-4" />
-                ) : (
-                  <Eye className="size-4" />
+              {errors.email && (
+                <FieldError errors={[errors.email]} />
+              )}
+            </Field>
+
+            {/* Password */}
+            <Field data-invalid={!!errors.password}>
+              <FieldLabel>
+                <Label htmlFor="password">Contraseña</Label>
+              </FieldLabel>
+              <div className="relative">
+                <Input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="••••••••"
+                  autoComplete="current-password"
+                  className="pr-10"
+                  aria-invalid={!!errors.password}
+                  disabled={isSubmitting}
+                  {...register("password")}
+                />
+                <button
+                  type="button"
+                  disabled={isSubmitting}
+                  onClick={() => setShowPassword((v) => !v)}
+                  className="absolute right-0 top-1/2 -translate-y-1/2 p-2 text-muted-foreground hover:text-foreground transition-colors outline-none focus-visible:text-foreground disabled:pointer-events-none disabled:opacity-50"
+                  aria-label={
+                    showPassword ? "Ocultar contraseña" : "Mostrar contraseña"
+                  }
+                >
+                  {showPassword ? (
+                    <EyeOff className="size-4" />
+                  ) : (
+                    <Eye className="size-4" />
+                  )}
+                </button>
+              </div>
+              {errors.password && (
+                <FieldError errors={[errors.password]} />
+              )}
+            </Field>
+
+            {/* Remember me + Forgot password */}
+            <div className="flex items-center justify-between">
+              <label
+                className={cn(
+                  "flex items-center gap-2 cursor-pointer select-none",
+                  isSubmitting && "pointer-events-none opacity-50"
                 )}
-              </button>
+              >
+                <Checkbox
+                  id="rememberMe"
+                  disabled={isSubmitting}
+                  {...register("rememberMe")}
+                />
+                <span className="text-sm text-muted-foreground">
+                  Recordarme
+                </span>
+              </label>
+              <Link
+                to={paths.forgotPassword}
+                className={cn(
+                  "text-sm text-primary underline underline-offset-4 hover:text-primary/80 transition-colors",
+                  isSubmitting && "pointer-events-none opacity-50"
+                )}
+              >
+                ¿Olvidaste tu contraseña?
+              </Link>
             </div>
-            {errors.password && (
-              <FieldError errors={[errors.password]} />
-            )}
-          </Field>
 
-          {/* Remember me + Forgot password */}
-          <div className="flex items-center justify-between">
-            <label className="flex items-center gap-2 cursor-pointer select-none">
-              <Checkbox id="rememberMe" {...register("rememberMe")} />
-              <span className="text-sm text-muted-foreground">
-                Recordarme
-              </span>
-            </label>
-            <Link
-              to={paths.forgotPassword}
-              className="text-sm text-primary underline underline-offset-4 hover:text-primary/80 transition-colors"
+            {/* Submit */}
+            <Button
+              type="submit"
+              className="w-full mt-2"
+              size="lg"
+              disabled={isSubmitting}
             >
-              ¿Olvidaste tu contraseña?
-            </Link>
-          </div>
-
-          {/* Submit */}
-          <Button
-            type="submit"
-            className="w-full mt-2"
-            size="lg"
-            disabled={isSubmitting}
-          >
-            <LogIn className="size-4" />
-            {isSubmitting ? "Ingresando..." : "Iniciar sesión"}
-          </Button>
-        </FieldGroup>
+              {isSubmitting ? (
+                <Loader2 className="size-4 animate-spin" />
+              ) : (
+                <LogIn className="size-4" />
+              )}
+              {isSubmitting ? "Iniciando sesión..." : "Iniciar sesión"}
+            </Button>
+          </FieldGroup>
+        </FieldSet>
       </form>
 
       {/* Divider */}
@@ -154,7 +177,10 @@ function LoginPage() {
         ¿No tienes una cuenta?{" "}
         <Link
           to={paths.register}
-          className="text-primary font-semibold underline underline-offset-4 hover:text-primary/80 transition-colors"
+          className={cn(
+            "text-primary font-semibold underline underline-offset-4 hover:text-primary/80 transition-colors",
+            isSubmitting && "pointer-events-none opacity-50"
+          )}
         >
           Regístrate
         </Link>

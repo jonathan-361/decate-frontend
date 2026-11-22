@@ -2,8 +2,9 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Eye, EyeOff, UserPlus } from "lucide-react";
+import { Eye, EyeOff, Loader2, UserPlus } from "lucide-react";
 import { toast } from "sonner";
+import { cn } from "cn";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,6 +14,7 @@ import {
   FieldError,
   FieldGroup,
   FieldLabel,
+  FieldSet,
 } from "@/components/ui/field";
 import { Separator } from "@/components/ui/separator";
 import { AuthLayout } from "@/modules/auth/components/AuthLayout";
@@ -69,190 +71,205 @@ function RegisterPage() {
       description="Regístrate para comenzar a organizar tu vida académica."
     >
       <form onSubmit={handleSubmit(onSubmit)} noValidate>
-        <FieldGroup className="gap-6">
-          {/* Nombre */}
-          <Field data-invalid={!!errors.nombre}>
-            <FieldLabel>
-              <Label htmlFor="nombre">Nombre(s)</Label>
-            </FieldLabel>
-            <Input
-              id="nombre"
-              type="text"
-              placeholder="Juan"
-              autoComplete="given-name"
-              aria-invalid={!!errors.nombre}
-              {...register("nombre", {
-                onChange: (e) => {
-                  e.target.value = e.target.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]/g, "");
-                },
-              })}
-            />
-            {errors.nombre && <FieldError errors={[errors.nombre]} />}
-          </Field>
-
-          {/* Apellido paterno */}
-          <Field data-invalid={!!errors.apellidoPaterno}>
-            <FieldLabel>
-              <Label htmlFor="apellidoPaterno">Apellido paterno</Label>
-            </FieldLabel>
-            <Input
-              id="apellidoPaterno"
-              type="text"
-              placeholder="García"
-              autoComplete="family-name"
-              aria-invalid={!!errors.apellidoPaterno}
-              {...register("apellidoPaterno", {
-                onChange: (e) => {
-                  e.target.value = e.target.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]/g, "");
-                },
-              })}
-            />
-            {errors.apellidoPaterno && (
-              <FieldError errors={[errors.apellidoPaterno]} />
-            )}
-          </Field>
-
-          {/* Apellido materno */}
-          <Field data-invalid={!!errors.apellidoMaterno}>
-            <FieldLabel>
-              <Label htmlFor="apellidoMaterno">Apellido materno</Label>
-            </FieldLabel>
-            <Input
-              id="apellidoMaterno"
-              type="text"
-              placeholder="López"
-              autoComplete="additional-name"
-              aria-invalid={!!errors.apellidoMaterno}
-              {...register("apellidoMaterno", {
-                onChange: (e) => {
-                  e.target.value = e.target.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]/g, "");
-                },
-              })}
-            />
-            {errors.apellidoMaterno && (
-              <FieldError errors={[errors.apellidoMaterno]} />
-            )}
-          </Field>
-
-          {/* Matrícula */}
-          <Field data-invalid={!!errors.matricula}>
-            <FieldLabel>
-              <Label htmlFor="matricula">Matrícula</Label>
-            </FieldLabel>
-            <Input
-              id="matricula"
-              type="text"
-              inputMode="numeric"
-              placeholder="12345678"
-              aria-invalid={!!errors.matricula}
-              {...register("matricula", {
-                onChange: (e) => {
-                  e.target.value = e.target.value.replace(/\D/g, "");
-                },
-              })}
-            />
-            {errors.matricula && <FieldError errors={[errors.matricula]} />}
-          </Field>
-
-          {/* Email */}
-          <Field data-invalid={!!errors.email}>
-            <FieldLabel>
-              <Label htmlFor="email">Correo electrónico</Label>
-            </FieldLabel>
-            <Input
-              id="email"
-              type="email"
-              placeholder="correo@ejemplo.com"
-              autoComplete="email"
-              aria-invalid={!!errors.email}
-              {...register("email")}
-            />
-            {errors.email && <FieldError errors={[errors.email]} />}
-          </Field>
-
-          {/* Password */}
-          <Field data-invalid={!!errors.password}>
-            <FieldLabel>
-              <Label htmlFor="password">Contraseña</Label>
-            </FieldLabel>
-            <div className="relative">
+        <FieldSet disabled={isSubmitting} className="border-0 p-0 m-0 min-w-0">
+          <FieldGroup className="gap-6">
+            {/* Nombre */}
+            <Field data-invalid={!!errors.nombre}>
+              <FieldLabel>
+                <Label htmlFor="nombre">Nombre(s)</Label>
+              </FieldLabel>
               <Input
-                id="password"
-                type={showPassword ? "text" : "password"}
-                placeholder="Mínimo 8 caracteres"
-                autoComplete="new-password"
-                className="pr-10"
-                aria-invalid={!!errors.password}
-                {...register("password")}
+                id="nombre"
+                type="text"
+                placeholder="Juan"
+                autoComplete="given-name"
+                aria-invalid={!!errors.nombre}
+                disabled={isSubmitting}
+                {...register("nombre", {
+                  onChange: (e) => {
+                    e.target.value = e.target.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]/g, "");
+                  },
+                })}
               />
-              <button
-                type="button"
-                onClick={() => setShowPassword((v) => !v)}
-                className="absolute right-0 top-1/2 -translate-y-1/2 p-2 text-muted-foreground hover:text-foreground transition-colors outline-none focus-visible:text-foreground"
-                aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
-              >
-                {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
-              </button>
-            </div>
-            <p className="text-[0.75rem] text-muted-foreground mt-1">
-              Mínimo 8 caracteres, al menos una mayúscula, una minúscula, un número y un símbolo especial.
+              {errors.nombre && <FieldError errors={[errors.nombre]} />}
+            </Field>
+
+            {/* Apellido paterno */}
+            <Field data-invalid={!!errors.apellidoPaterno}>
+              <FieldLabel>
+                <Label htmlFor="apellidoPaterno">Apellido paterno</Label>
+              </FieldLabel>
+              <Input
+                id="apellidoPaterno"
+                type="text"
+                placeholder="García"
+                autoComplete="family-name"
+                aria-invalid={!!errors.apellidoPaterno}
+                disabled={isSubmitting}
+                {...register("apellidoPaterno", {
+                  onChange: (e) => {
+                    e.target.value = e.target.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]/g, "");
+                  },
+                })}
+              />
+              {errors.apellidoPaterno && (
+                <FieldError errors={[errors.apellidoPaterno]} />
+              )}
+            </Field>
+
+            {/* Apellido materno */}
+            <Field data-invalid={!!errors.apellidoMaterno}>
+              <FieldLabel>
+                <Label htmlFor="apellidoMaterno">Apellido materno</Label>
+              </FieldLabel>
+              <Input
+                id="apellidoMaterno"
+                type="text"
+                placeholder="López"
+                autoComplete="additional-name"
+                aria-invalid={!!errors.apellidoMaterno}
+                disabled={isSubmitting}
+                {...register("apellidoMaterno", {
+                  onChange: (e) => {
+                    e.target.value = e.target.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]/g, "");
+                  },
+                })}
+              />
+              {errors.apellidoMaterno && (
+                <FieldError errors={[errors.apellidoMaterno]} />
+              )}
+            </Field>
+
+            {/* Matrícula */}
+            <Field data-invalid={!!errors.matricula}>
+              <FieldLabel>
+                <Label htmlFor="matricula">Matrícula</Label>
+              </FieldLabel>
+              <Input
+                id="matricula"
+                type="text"
+                inputMode="numeric"
+                placeholder="12345678"
+                aria-invalid={!!errors.matricula}
+                disabled={isSubmitting}
+                {...register("matricula", {
+                  onChange: (e) => {
+                    e.target.value = e.target.value.replace(/\D/g, "");
+                  },
+                })}
+              />
+              {errors.matricula && <FieldError errors={[errors.matricula]} />}
+            </Field>
+
+            {/* Email */}
+            <Field data-invalid={!!errors.email}>
+              <FieldLabel>
+                <Label htmlFor="email">Correo electrónico</Label>
+              </FieldLabel>
+              <Input
+                id="email"
+                type="email"
+                placeholder="correo@ejemplo.com"
+                autoComplete="email"
+                aria-invalid={!!errors.email}
+                disabled={isSubmitting}
+                {...register("email")}
+              />
+              {errors.email && <FieldError errors={[errors.email]} />}
+            </Field>
+
+            {/* Password */}
+            <Field data-invalid={!!errors.password}>
+              <FieldLabel>
+                <Label htmlFor="password">Contraseña</Label>
+              </FieldLabel>
+              <div className="relative">
+                <Input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Mínimo 8 caracteres"
+                  autoComplete="new-password"
+                  className="pr-10"
+                  aria-invalid={!!errors.password}
+                  disabled={isSubmitting}
+                  {...register("password")}
+                />
+                <button
+                  type="button"
+                  disabled={isSubmitting}
+                  onClick={() => setShowPassword((v) => !v)}
+                  className="absolute right-0 top-1/2 -translate-y-1/2 p-2 text-muted-foreground hover:text-foreground transition-colors outline-none focus-visible:text-foreground disabled:pointer-events-none disabled:opacity-50"
+                  aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                >
+                  {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+                </button>
+              </div>
+              <p className="text-[0.75rem] text-muted-foreground mt-1">
+                Mínimo 8 caracteres, al menos una mayúscula, una minúscula, un número y un símbolo especial.
+              </p>
+              {errors.password && <FieldError errors={[errors.password]} />}
+            </Field>
+
+            {/* Confirm password */}
+            <Field data-invalid={!!errors.confirmPassword}>
+              <FieldLabel>
+                <Label htmlFor="confirmPassword">Confirmar contraseña</Label>
+              </FieldLabel>
+              <div className="relative">
+                <Input
+                  id="confirmPassword"
+                  type={showConfirmPassword ? "text" : "password"}
+                  placeholder="Repite tu contraseña"
+                  autoComplete="new-password"
+                  className="pr-10"
+                  aria-invalid={!!errors.confirmPassword}
+                  disabled={isSubmitting}
+                  {...register("confirmPassword")}
+                />
+                <button
+                  type="button"
+                  disabled={isSubmitting}
+                  onClick={() => setShowConfirmPassword((v) => !v)}
+                  className="absolute right-0 top-1/2 -translate-y-1/2 p-2 text-muted-foreground hover:text-foreground transition-colors outline-none focus-visible:text-foreground disabled:pointer-events-none disabled:opacity-50"
+                  aria-label={showConfirmPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                >
+                  {showConfirmPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+                </button>
+              </div>
+              {errors.confirmPassword && (
+                <FieldError errors={[errors.confirmPassword]} />
+              )}
+            </Field>
+
+            {/* Terms note */}
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              Al registrarte, aceptas nuestros{" "}
+              <span className="text-primary underline underline-offset-4 cursor-pointer hover:text-primary/80">
+                Términos de servicio
+              </span>{" "}
+              y{" "}
+              <span className="text-primary underline underline-offset-4 cursor-pointer hover:text-primary/80">
+                Política de privacidad
+              </span>
+              .
             </p>
-            {errors.password && <FieldError errors={[errors.password]} />}
-          </Field>
 
-          {/* Confirm password */}
-          <Field data-invalid={!!errors.confirmPassword}>
-            <FieldLabel>
-              <Label htmlFor="confirmPassword">Confirmar contraseña</Label>
-            </FieldLabel>
-            <div className="relative">
-              <Input
-                id="confirmPassword"
-                type={showConfirmPassword ? "text" : "password"}
-                placeholder="Repite tu contraseña"
-                autoComplete="new-password"
-                className="pr-10"
-                aria-invalid={!!errors.confirmPassword}
-                {...register("confirmPassword")}
-              />
-              <button
-                type="button"
-                onClick={() => setShowConfirmPassword((v) => !v)}
-                className="absolute right-0 top-1/2 -translate-y-1/2 p-2 text-muted-foreground hover:text-foreground transition-colors outline-none focus-visible:text-foreground"
-                aria-label={showConfirmPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
-              >
-                {showConfirmPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
-              </button>
-            </div>
-            {errors.confirmPassword && (
-              <FieldError errors={[errors.confirmPassword]} />
-            )}
-          </Field>
-
-          {/* Terms note */}
-          <p className="text-xs text-muted-foreground leading-relaxed">
-            Al registrarte, aceptas nuestros{" "}
-            <span className="text-primary underline underline-offset-4 cursor-pointer hover:text-primary/80">
-              Términos de servicio
-            </span>{" "}
-            y{" "}
-            <span className="text-primary underline underline-offset-4 cursor-pointer hover:text-primary/80">
-              Política de privacidad
-            </span>
-            .
-          </p>
-
-          {/* Submit */}
-          <Button
-            type="submit"
-            className="w-full"
-            size="lg"
-            disabled={isSubmitting}
-          >
-            <UserPlus className="size-4" />
-            {isSubmitting ? "Creando cuenta..." : "Crear cuenta"}
-          </Button>
-        </FieldGroup>
+            {/* Submit */}
+            <Button
+              type="submit"
+              className="w-full"
+              size="lg"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? (
+                <Loader2 className="size-4 animate-spin" />
+              ) : (
+                <UserPlus className="size-4" />
+              )}
+              {isSubmitting ? "Creando cuenta..." : "Crear cuenta"}
+            </Button>
+          </FieldGroup>
+        </FieldSet>
       </form>
 
       {/* Divider */}
@@ -269,7 +286,10 @@ function RegisterPage() {
         ¿Ya tienes una cuenta?{" "}
         <Link
           to={paths.login}
-          className="text-primary font-semibold underline underline-offset-4 hover:text-primary/80 transition-colors"
+          className={cn(
+            "text-primary font-semibold underline underline-offset-4 hover:text-primary/80 transition-colors",
+            isSubmitting && "pointer-events-none opacity-50"
+          )}
         >
           Inicia sesión
         </Link>
