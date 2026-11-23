@@ -417,7 +417,7 @@ self.addEventListener("fetch", (event) => {
   // Build assets (hash en el nombre) -> Cache First, son inmutables.
   if (url.pathname.startsWith("/assets/")) {
     event.respondWith(
-      cacheFirst(request, CACHES.assets).catch(() => offlineResponse()),
+      cacheFirst(request, CACHES.precache).catch(() => offlineResponse()),
     );
     return;
   }

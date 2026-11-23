@@ -11,6 +11,7 @@ import {
 import { setUnauthorizedHandler } from "@/modules/core/services/axios.instance";
 import { useAuthStore, hydrateAuth } from "@/modules/auth/stores/auth.store";
 import { hydrateTheme } from "@/modules/core/stores/theme.store";
+import { useSettingsStore } from "@/modules/settings/stores/settings.store";
 import "./index.css";
 
 setUnauthorizedHandler(() => {
@@ -28,10 +29,11 @@ function LoadingScreen() {
 }
 
 async function bootstrap() {
-  // El tema y el usuario salen de IndexedDB: se cargan en segundo plano.
+  // El tema, el usuario y la configuración salen de IndexedDB: se cargan en segundo plano.
   // NO bloqueamos el render con la hidratación de IndexedDB.
   void hydrateTheme();
   void hydrateAuth();
+  void useSettingsStore.getState().hydrateSettings();
 
   createRoot(document.getElementById("root")!).render(
     <StrictMode>

@@ -5,8 +5,9 @@ import type { ProfileFormValues } from "@/modules/users/schemas";
 import { StudentIdentityCard } from "@/modules/users/components/profile/StudentIdentityCard";
 import { AcademicStatsOverview } from "@/modules/users/components/profile/AcademicStatsOverview";
 import { ProfileEditForm } from "@/modules/users/components/profile/ProfileEditForm";
-import { useProfileStore } from "@/modules/users/stores/profile.store";
+import { useProfileStore, PROFILE_FORM_KEY } from "@/modules/users/stores/profile.store";
 import { useAuthStore } from "@/modules/auth/stores/auth.store";
+import { idbGet, idbSet } from "@/modules/core/services/indexeddb";
 
 const EMPTY_FORM: ProfileFormValues = {
   fullName: "",
@@ -34,6 +35,13 @@ export default function ProfilePage() {
     }
   }, [usuario?.id]);
 
+  // Carga previa de campos guardados localmente
+  useEffect(() => {
+    void idbGet<ProfileFormValues>(PROFILE_FORM_KEY).then((guardado) => {
+      if (guardado) setFormData((prev) => ({ ...prev, ...guardado }));
+    });
+  }, []);
+
   // Cuando llegan los datos de la API, poblar los campos que el backend conoce
   useEffect(() => {
     if (!perfil) return;
@@ -55,6 +63,7 @@ export default function ProfilePage() {
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
+    void idbSet(PROFILE_FORM_KEY, formData);
     setIsSaved(true);
     setTimeout(() => setIsSaved(false), 3000);
   };

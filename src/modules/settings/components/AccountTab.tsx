@@ -2,6 +2,7 @@ import { Link } from "react-router";
 import { KeyRound, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { useAuthStore } from "@/modules/auth/stores/auth.store";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -20,6 +21,8 @@ interface AccountTabProps {
 }
 
 export function AccountTab({ onLogout }: AccountTabProps) {
+  const usuario = useAuthStore((s) => s.usuario);
+
   return (
     <div className="space-y-6">
       {/* Account Info & Security */}
@@ -57,7 +60,7 @@ export function AccountTab({ onLogout }: AccountTabProps) {
                 Sesión activa en este dispositivo
               </span>
               <p className="text-[11px] text-muted-foreground">
-                Conectado desde navegador de escritorio · IP: 189.204.xx.xx (México)
+                {usuario ? `${usuario.nombre} · ${usuario.correo}` : "Conectado desde navegador de escritorio"}
               </p>
             </div>
             <Badge variant="outline" className="text-[10px] w-fit">

@@ -5,6 +5,11 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { PageContainer, PageHeader } from "@/components/custom";
 import { paths } from "@/modules/core/routes/paths/path";
 import { useThemeStore } from "@/modules/core/stores/theme.store";
+import { useAuthStore } from "@/modules/auth/stores/auth.store";
+import { useTaskStore, TASKS_KEY } from "@/modules/tasks/stores/task.store";
+import { useProfileStore, PROFILE_KEY, PROFILE_FORM_KEY } from "@/modules/users/stores/profile.store";
+import { useSettingsStore, SETTINGS_KEY } from "@/modules/settings/stores/settings.store";
+import { idbDelete } from "@/modules/core/services/indexeddb";
 import { AppearanceTab } from "@/modules/settings/components/AppearanceTab";
 import { NotificationsTab } from "@/modules/settings/components/NotificationsTab";
 import { SyncTab } from "@/modules/settings/components/SyncTab";
@@ -12,22 +17,31 @@ import { AccountTab } from "@/modules/settings/components/AccountTab";
 
 export default function SettingsPage() {
   const navigate = useNavigate();
+  const logout = useAuthStore((s) => s.logout);
 
   // Appearance states
   const theme = useThemeStore((state) => state.theme);
   const setTheme = useThemeStore((state) => state.setTheme);
-  const [weekStart, setWeekStart] = useState<string>("lunes");
-  const [timeFormat, setTimeFormat] = useState<string>("24h");
-  const [defaultCalendarView, setDefaultCalendarView] = useState<string>("mes");
 
-  // Notification channels (las reglas por tipo viven en Recordatorios)
-  const [notifyEmail, setNotifyEmail] = useState(false);
-  const [soundEnabled, setSoundEnabled] = useState(true);
+  // Settings persistidas en IndexedDB
+  const {
+    weekStart,
+    setWeekStart,
+    timeFormat,
+    setTimeFormat,
+    defaultCalendarView,
+    setDefaultCalendarView,
+    notifyEmail,
+    setNotifyEmail,
+    soundEnabled,
+    setSoundEnabled,
+    autoSync,
+    setAutoSync,
+    lastSyncTime,
+    setLastSyncTime,
+  } = useSettingsStore();
 
-  // Sync & Storage states
-  const [autoSync, setAutoSync] = useState(true);
   const [isSyncing, setIsSyncing] = useState(false);
-  const [lastSyncTime, setLastSyncTime] = useState("Hoy a las 10:04 AM");
   const [syncSuccess, setSyncSuccess] = useState(false);
   const [resetSuccess, setResetSuccess] = useState(false);
 
@@ -36,18 +50,27 @@ export default function SettingsPage() {
     setSyncSuccess(false);
     setTimeout(() => {
       setIsSyncing(false);
-      setLastSyncTime("Hace unos segundos");
+      const now = new Date().toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit" });
+      setLastSyncTime(`Hoy a las ${now}`);
       setSyncSuccess(true);
       setTimeout(() => setSyncSuccess(false), 3500);
     }, 1200);
   };
 
-  const handleResetData = () => {
+  const handleResetData = async () => {
+    await idbDelete(SETTINGS_KEY);
+    await idbDelete(TASKS_KEY);
+    await idbDelete(PROFILE_KEY);
+    await idbDelete(PROFILE_FORM_KEY);
+    useTaskStore.setState({ tasks: [] });
+    useProfileStore.setState({ perfil: null });
+    void useSettingsStore.getState().hydrateSettings();
     setResetSuccess(true);
     setTimeout(() => setResetSuccess(false), 3500);
   };
 
   const handleLogout = () => {
+    logout();
     navigate(paths.login);
   };
 
