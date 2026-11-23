@@ -85,6 +85,9 @@ export default defineConfig({
       output: {
         manualChunks(id) {
           if (id.includes("node_modules")) {
+            if (id.includes("@base-ui")) {
+              return "vendor-base-ui";
+            }
             if (
               id.includes("react-router") ||
               id.includes("react-dom") ||
@@ -92,9 +95,6 @@ export default defineConfig({
               id.endsWith("/react")
             ) {
               return "vendor-react";
-            }
-            if (id.includes("@base-ui")) {
-              return "vendor-base-ui";
             }
             if (id.includes("lucide-react")) {
               return "vendor-lucide-react";

@@ -25,47 +25,58 @@ interface TaskState {
   syncPendingTasks: () => Promise<void>;
 }
 
+let inFlightFetch: Promise<void> | null = null;
+
 export const useTaskStore = create<TaskState>((set, get) => ({
   tasks: [],
   isLoading: false,
   error: null,
 
   fetchTasks: async () => {
-    set({ isLoading: true, error: null });
+    if (inFlightFetch) return inFlightFetch;
 
-    // 1. Muestra al instante la ultima copia guardada (si existe).
-    const guardadas = await idbGet<Task[]>(TASKS_KEY);
-    if (guardadas && get().tasks.length === 0) {
-      set({ tasks: guardadas });
-    }
+    inFlightFetch = (async () => {
+      set({ isLoading: true, error: null });
 
-    // 2. Pide las tareas al servidor y actualiza la copia.
-    try {
-      const { success, message, data } = await taskService.getAll();
-      if (!success || !data) throw new Error(message);
-      set({ tasks: data, isLoading: false, error: null });
-      void idbSet(TASKS_KEY, data);
-    } catch (err) {
-      // Si estamos offline o el fallo es de red (Network Error), NO mostramos error bloqueante:
-      // se muestran las tareas locales (o array vacío si no hay ninguna)
-      const isOffline =
-        !navigator.onLine ||
-        (err instanceof Error &&
-          (err.message.includes("Network Error") ||
-            err.message.includes("offline")));
-
-      if (isOffline || guardadas !== undefined) {
-        set({
-          error: null,
-          isLoading: false,
-        });
-      } else {
-        set({
-          error: getErrorMessage(err, "Error al obtener las tareas"),
-          isLoading: false,
-        });
+      // 1. Muestra al instante la ultima copia guardada (si existe).
+      const guardadas = await idbGet<Task[]>(TASKS_KEY);
+      if (guardadas && get().tasks.length === 0) {
+        set({ tasks: guardadas });
       }
-    }
+
+      // 2. Pide las tareas al servidor y actualiza la copia.
+      try {
+        const { success, message, data } = await taskService.getAll();
+        if (!success || !data) throw new Error(message);
+        set({ tasks: data, isLoading: false, error: null });
+        void idbSet(TASKS_KEY, data);
+      } catch (err) {
+        // Si estamos offline o el fallo es de red (Network Error), NO mostramos error bloqueante:
+        // se muestran las tareas locales (o array vacío si no hay ninguna)
+        const isOffline =
+          !navigator.onLine ||
+          (err instanceof Error &&
+            (err.message.includes("Network Error") ||
+              err.message.includes("offline")));
+
+        if (isOffline || guardadas !== undefined) {
+          set({
+            error: null,
+            isLoading: false,
+            tasks: guardadas ?? [],
+          });
+          return;
+        }
+
+        const msg = getErrorMessage(err, "No se pudieron cargar las tareas");
+        set({ error: msg, isLoading: false });
+        toast.error(msg);
+      } finally {
+        inFlightFetch = null;
+      }
+    })();
+
+    return inFlightFetch;
   },
 
   createTask: async (payload) => {

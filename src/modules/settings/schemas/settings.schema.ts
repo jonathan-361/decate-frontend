@@ -1,8 +1,8 @@
 import { z } from "zod";
-import { themeModeSchema } from "@/modules/core/schemas/theme.schema";
+import type { ThemeMode } from "@/modules/core/schemas/theme.schema";
 
-export { themeModeSchema };
-export type ThemeMode = z.infer<typeof themeModeSchema>;
+export const themeModeSchema = z.enum(["light", "dark", "system"]);
+export type { ThemeMode };
 
 export const settingsSchema = z.object({
   theme: themeModeSchema.default("light"),

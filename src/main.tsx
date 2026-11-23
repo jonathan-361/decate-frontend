@@ -1,7 +1,7 @@
-import { StrictMode, Suspense, lazy } from "react";
+import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router";
-import { toast } from "sonner";
+import AppRouter from "@/modules/core/routes/Router";
 import { ThemeProvider } from "@/modules/core/components/ThemeProvider";
 import {
   applyServiceWorkerUpdate,
@@ -18,16 +18,6 @@ setUnauthorizedHandler(() => {
   useAuthStore.getState().logout();
 });
 
-const App = lazy(() => import("@/modules/core/routes/Router"));
-
-function LoadingScreen() {
-  return (
-    <div className="flex items-center justify-center min-h-screen bg-background">
-      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-    </div>
-  );
-}
-
 async function bootstrap() {
   // El tema, el usuario y la configuración salen de IndexedDB: se cargan en segundo plano.
   // NO bloqueamos el render con la hidratación de IndexedDB.
@@ -39,20 +29,20 @@ async function bootstrap() {
     <StrictMode>
       <BrowserRouter>
         <ThemeProvider>
-          <Suspense fallback={<LoadingScreen />}>
-            <App />
-          </Suspense>
+          <AppRouter />
         </ThemeProvider>
       </BrowserRouter>
     </StrictMode>,
   );
 
   registerServiceWorker({
-    onUpdateReady: () =>
+    onUpdateReady: async () => {
+      const { toast } = await import("sonner");
       toast("Hay una versión nueva de Dacate", {
         duration: Infinity,
         action: { label: "Actualizar", onClick: applyServiceWorkerUpdate },
-      }),
+      });
+    },
   });
   watchConnectionStatus();
 }

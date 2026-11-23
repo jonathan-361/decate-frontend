@@ -41,10 +41,52 @@
       }
     })();
   </script>
+  <style>
+    :root {
+      --shell-bg: #fbfaf9;
+      --shell-border: #e8e6e3;
+      --shell-bar: #eae8e4;
+      --shell-card: #f4f3f0;
+    }
+    :root.dark, [data-theme="dark"] {
+      --shell-bg: #16171d;
+      --shell-border: #262833;
+      --shell-bar: #232530;
+      --shell-card: #1c1d25;
+    }
+    @media (min-width: 768px) {
+      .shell-sidebar { display: block !important; }
+    }
+    @keyframes shell-pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: .55; }
+    }
+    .shell-pulse { animation: shell-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+  </style>
 </head>
 
 <body>
-  <div id="root"></div>
+  <div id="root">
+    <div class="shell-pulse" style="display:flex;min-height:100vh;background-color:var(--shell-bg);font-family:system-ui,-apple-system,sans-serif;">
+      <div class="shell-sidebar" style="width:250px;border-right:1px solid var(--shell-border);padding:1.5rem 1rem;display:none;flex-shrink:0;">
+        <div style="height:28px;width:110px;background:var(--shell-bar);border-radius:6px;margin-bottom:2rem;"></div>
+        <div style="height:20px;background:var(--shell-bar);border-radius:4px;margin-bottom:1rem;width:80%;"></div>
+        <div style="height:20px;background:var(--shell-bar);border-radius:4px;margin-bottom:1rem;width:70%;"></div>
+        <div style="height:20px;background:var(--shell-bar);border-radius:4px;margin-bottom:1rem;width:75%;"></div>
+      </div>
+      <div style="flex:1;padding:2rem 1.5rem;">
+        <div style="max-width:1024px;margin:0 auto;">
+          <div style="height:14px;width:130px;background:var(--shell-bar);border-radius:4px;margin-bottom:0.75rem;"></div>
+          <div style="height:32px;width:280px;background:var(--shell-bar);border-radius:6px;margin-bottom:1rem;"></div>
+          <div style="height:18px;width:220px;background:var(--shell-bar);border-radius:4px;margin-bottom:2rem;"></div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(260px, 1fr));gap:1rem;">
+            <div style="height:140px;background:var(--shell-card);border-radius:8px;border:1px solid var(--shell-border);"></div>
+            <div style="height:140px;background:var(--shell-card);border-radius:8px;border:1px solid var(--shell-border);"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
   <script type="module" src="/src/main.tsx"></script>
 </body>
 

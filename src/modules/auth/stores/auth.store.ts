@@ -3,8 +3,6 @@ import { authService } from "@/modules/auth/services/auth.service";
 import { setTokenGetter } from "@/modules/core/services/axios.instance";
 import { getErrorMessage } from "@/modules/core/services/api-error";
 import { idbDelete, idbGet, idbSet } from "@/modules/core/services/indexeddb";
-import { useTaskStore, TASKS_KEY, OUTBOX_KEY } from "@/modules/tasks/stores/task.store";
-import { useProfileStore, PROFILE_KEY, PROFILE_FORM_KEY } from "@/modules/users/stores/profile.store";
 import type {
   LoginPayload,
   RegistroPayload,
@@ -12,10 +10,15 @@ import type {
 } from "@/modules/auth/types/auth.types";
 
 const SESSION_KEY = "dacate-user";
+const TASKS_KEY = "dacate-tasks";
+const OUTBOX_KEY = "dacate-tasks-outbox";
+const PROFILE_KEY = "dacate-profile";
+const PROFILE_FORM_KEY = "dacate-profile-form";
 
 interface AuthState {
   usuario: UsuarioAutenticado | null;
   isAuthenticated: boolean;
+  isHydrated: boolean;
   login: (payload: LoginPayload) => Promise<void>;
   registro: (payload: RegistroPayload) => Promise<void>;
   logout: () => void;
@@ -24,6 +27,7 @@ interface AuthState {
 export const useAuthStore = create<AuthState>()((set) => ({
   usuario: null,
   isAuthenticated: false,
+  isHydrated: false,
 
   login: async (payload) => {
     try {
@@ -33,7 +37,7 @@ export const useAuthStore = create<AuthState>()((set) => ({
       }
 
       await idbSet(SESSION_KEY, res.data);
-      set({ usuario: res.data, isAuthenticated: true });
+      set({ usuario: res.data, isAuthenticated: true, isHydrated: true });
     } catch (err) {
       throw new Error(getErrorMessage(err, "Error al iniciar sesión"));
     }
@@ -57,21 +61,28 @@ export const useAuthStore = create<AuthState>()((set) => ({
     void idbDelete(OUTBOX_KEY);
     void idbDelete(PROFILE_KEY);
     void idbDelete(PROFILE_FORM_KEY);
-    useTaskStore.setState({ tasks: [] });
-    useProfileStore.setState({ perfil: null });
-    set({ usuario: null, isAuthenticated: false });
+    void import("@/modules/tasks/stores/task.store").then((m) =>
+      m.useTaskStore.setState({ tasks: [] })
+    );
+    void import("@/modules/users/stores/profile.store").then((m) =>
+      m.useProfileStore.setState({ perfil: null })
+    );
+    set({ usuario: null, isAuthenticated: false, isHydrated: true });
   },
 }));
 
 /** Recupera el usuario de IndexedDB antes de renderizar la app. */
 export async function hydrateAuth() {
-  // Usar setTimeout para no bloquear el render
-  setTimeout(async () => {
+  try {
     const stored = await idbGet<UsuarioAutenticado>(SESSION_KEY);
     if (stored) {
       // shortcut: el token real lo maneja la cookie httpOnly del backend; aquí solo guardamos el usuario
       setTokenGetter(() => null);
-      useAuthStore.setState({ usuario: stored, isAuthenticated: true });
+      useAuthStore.setState({ usuario: stored, isAuthenticated: true, isHydrated: true });
+    } else {
+      useAuthStore.setState({ isHydrated: true });
     }
-  }, 0);
+  } catch {
+    useAuthStore.setState({ isHydrated: true });
+  }
 }

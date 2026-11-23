@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { Link, useLocation, Outlet } from "react-router";
 import {
   GraduationCap,
@@ -158,7 +159,13 @@ function AppLayout({ children }: AppLayoutProps) {
             </span>
           </header>
 
-          <main className="flex-1 p-6">{children ?? <Outlet />}</main>
+          <main className="flex-1 p-6">
+            {children ?? (
+              <Suspense fallback={null}>
+                <Outlet />
+              </Suspense>
+            )}
+          </main>
         </SidebarInset>
       </SidebarProvider>
     </TooltipProvider>

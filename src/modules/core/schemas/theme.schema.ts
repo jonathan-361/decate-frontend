@@ -1,7 +1,6 @@
-import { z } from "zod";
+export type ThemeMode = "light" | "dark" | "system";
+export type ResolvedTheme = "light" | "dark";
 
-export const themeModeSchema = z.enum(["light", "dark", "system"]);
-export type ThemeMode = z.infer<typeof themeModeSchema>;
-
-export const resolvedThemeSchema = z.enum(["light", "dark"]);
-export type ResolvedTheme = z.infer<typeof resolvedThemeSchema>;
+export function isThemeMode(val: unknown): val is ThemeMode {
+  return val === "light" || val === "dark" || val === "system";
+}

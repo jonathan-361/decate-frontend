@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import {
-  themeModeSchema,
+  isThemeMode,
   type ResolvedTheme,
   type ThemeMode,
 } from "@/modules/core/schemas/theme.schema";
@@ -40,8 +40,7 @@ export async function hydrateTheme() {
   // Usar setTimeout para no bloquear el render
   setTimeout(async () => {
     const stored = await idbGet<string>(THEME_STORAGE_KEY);
-    const parsed = themeModeSchema.safeParse(stored);
-    const theme = parsed.success ? parsed.data : DEFAULT_THEME;
+    const theme = isThemeMode(stored) ? stored : DEFAULT_THEME;
     applyTheme(resolveTheme(theme));
     useThemeStore.setState({ theme });
   }, 0);
