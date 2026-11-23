@@ -35,7 +35,15 @@ const CACHES = {
 };
 
 /** Shell minimo que siempre debe estar disponible sin red. */
-const CORE_SHELL = ["/", "/index.html", "/manifest.json", "/offline.html"];
+const CORE_SHELL = [
+  "/",
+  "/index.html",
+  "/manifest.json",
+  "/offline.html",
+  "/favicon.svg",
+  "/icons/dacate.svg",
+  "/icons/icons.svg",
+];
 
 /** Rutas que SI son HTML: el resto del precache no deberia serlo. */
 const HTML_PRECACHE_URLS = new Set(["/", "/index.html", "/offline.html"]);
@@ -97,10 +105,14 @@ function isHtmlResponse(response) {
  */
 async function cleanCopy(response) {
   if (!response.redirected) return response;
-  return new Response(await response.blob(), {
+  const blob = await response.blob();
+  const headers = new Headers();
+  const ct = response.headers.get("content-type");
+  if (ct) headers.set("content-type", ct);
+  return new Response(blob, {
     status: 200,
     statusText: "OK",
-    headers: response.headers,
+    headers,
   });
 }
 
@@ -160,6 +172,12 @@ function offlineResponse(message = "Sin conexion") {
 
 /** Cache First: ideal para recursos con hash (immutables). */
 async function cacheFirst(request, cacheName) {
+  // 1. Prioridad: precache
+  const precache = await caches.open(CACHES.precache);
+  const precached = await precache.match(request);
+  if (precached) return precached;
+
+  // 2. Cache por categoría
   const cache = await caches.open(cacheName);
   const cached = await cache.match(request);
   if (cached) return cached;
@@ -178,6 +196,12 @@ async function cacheFirst(request, cacheName) {
 
 /** Stale While Revalidate: sirve la version cacheada y refresca en segundo plano. */
 async function staleWhileRevalidate(request, cacheName, event) {
+  // 1. Si está en precache (ej: manifest.json, iconos iniciales), servir de inmediato
+  const precache = await caches.open(CACHES.precache);
+  const precached = await precache.match(request);
+  if (precached) return precached;
+
+  // 2. Si está en la cache específica, servir y revalidar en segundo plano
   const cache = await caches.open(cacheName);
   const cached = await cache.match(request);
 
@@ -244,8 +268,12 @@ async function handleNavigation(event) {
   const cache = await caches.open(CACHES.precache);
 
   const loadFromNetwork = async () => {
-    const preloaded = await event.preloadResponse;
-    if (preloaded) return preloaded;
+    try {
+      const preloaded = await event.preloadResponse;
+      if (preloaded) return preloaded;
+    } catch {
+      // Ignorar rechazo de preload al estar sin conexión
+    }
     return fetchWithTimeout(request, NAVIGATION_TIMEOUT);
   };
 
@@ -257,7 +285,10 @@ async function handleNavigation(event) {
     const shell =
       (await cache.match("/index.html")) ||
       (await cache.match("/")) ||
-      (await cache.match("/offline.html"));
+      (await caches.match("/index.html")) ||
+      (await caches.match("/")) ||
+      (await cache.match("/offline.html")) ||
+      (await caches.match("/offline.html"));
     return shell ? cleanCopy(shell) : offlineResponse();
   }
 }
@@ -269,12 +300,27 @@ async function handleNavigation(event) {
 self.addEventListener("install", (event) => {
   event.waitUntil(
     (async () => {
+      await self.skipWaiting();
       const cache = await caches.open(CACHES.precache);
 
-      // Se espera a que termine TODO el precache antes de dar la instalacion
-      // por buena (antes se usaba forEach(async ...) y no esperaba nada).
+      // Precachear index.html explícitamente tanto como "/" como "/index.html"
+      try {
+        const indexRes = await fetch("/index.html");
+        if (indexRes && indexRes.ok) {
+          const blob = await indexRes.blob();
+          const headers = new Headers();
+          headers.set("content-type", indexRes.headers.get("content-type") || "text/html; charset=utf-8");
+          await cache.put("/index.html", new Response(blob, { status: 200, headers }));
+          await cache.put("/", new Response(blob, { status: 200, headers }));
+        }
+      } catch (err) {
+        console.warn("[dacate-sw] Error al precachear index.html:", err);
+      }
+
+      // Se espera a que termine TODO el precache antes de dar la instalacion por buena
       await Promise.all(
         PRECACHE_URLS.map(async (url) => {
+          if (url === "/" || url === "/index.html") return;
           try {
             const response = await fetch(new Request(url, { cache: "reload" }));
             const esperaHtml = HTML_PRECACHE_URLS.has(url);
@@ -290,10 +336,6 @@ self.addEventListener("install", (event) => {
           }
         }),
       );
-
-      // Sin skipWaiting(): la version nueva espera a que el usuario la acepte
-      // (mensaje SKIP_WAITING). En la primera instalacion no hay SW previa,
-      // asi que se activa sola.
     })(),
   );
 });

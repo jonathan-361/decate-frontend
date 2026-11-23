@@ -93,7 +93,11 @@ export default function TasksPage() {
         toast.success("Tarea actualizada");
       } else {
         await createTask(payload);
-        toast.success("Tarea creada");
+        if (!navigator.onLine) {
+          toast.success("Tarea guardada sin conexión (se sincronizará al conectar)");
+        } else {
+          toast.success("Tarea creada");
+        }
       }
       closeDialog();
     } catch (e) {
