@@ -1,17 +1,29 @@
 import { z } from "zod";
 
-export const profileSchema = z.object({
-  fullName: z.string().min(1, "El nombre completo es requerido").min(3, "Mínimo 3 caracteres"),
-  email: z.string().min(1, "El correo institucional es requerido").email("Ingresa un correo válido"),
-  phone: z.string().optional(),
-  university: z.string().min(1, "La universidad es requerida"),
-  faculty: z.string().optional(),
-  career: z.string().min(1, "La carrera es requerida"),
-  studentId: z.string().min(1, "La matrícula es requerida"),
-  semester: z.string().min(1, "El semestre es requerido"),
-  shift: z.enum(["Matutino", "Vespertino", "Mixto", "Ejecutivo"]).default("Matutino"),
-  bio: z.string().max(300, "Máximo 300 caracteres").optional(),
+export const turnoProfileSchema = z.enum(["MATUTINO", "VESPERTINO"], {
+  message: "Selecciona un turno válido",
 });
 
-export type ProfileFormValues = z.infer<typeof profileSchema>;
+export const updateProfileSchema = z.object({
+  telefono: z
+    .string()
+    .trim()
+    .min(10, "El teléfono debe tener al menos 10 dígitos")
+    .regex(/^\d+$/, "El teléfono solo debe contener números"),
+  carrera: z
+    .string()
+    .trim()
+    .min(1, "La carrera es requerida"),
+  semestre: z
+    .string()
+    .trim()
+    .min(1, "El semestre es requerido")
+    .regex(/^\d+$/, "El semestre debe ser un número")
+    .refine(
+      (val) => Number.isInteger(Number(val)) && Number(val) > 0,
+      "El semestre debe ser un número entero positivo",
+    ),
+  turno: turnoProfileSchema,
+});
 
+export type UpdateProfileFormValues = z.infer<typeof updateProfileSchema>;

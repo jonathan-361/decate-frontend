@@ -13,7 +13,6 @@ const SESSION_KEY = "dacate-user";
 const TASKS_KEY = "dacate-tasks";
 const OUTBOX_KEY = "dacate-tasks-outbox";
 const PROFILE_KEY = "dacate-profile";
-const PROFILE_FORM_KEY = "dacate-profile-form";
 
 interface AuthState {
   usuario: UsuarioAutenticado | null;
@@ -60,7 +59,6 @@ export const useAuthStore = create<AuthState>()((set) => ({
     void idbDelete(TASKS_KEY);
     void idbDelete(OUTBOX_KEY);
     void idbDelete(PROFILE_KEY);
-    void idbDelete(PROFILE_FORM_KEY);
     void import("@/modules/tasks/stores/task.store").then((m) =>
       m.useTaskStore.setState({ tasks: [] })
     );
