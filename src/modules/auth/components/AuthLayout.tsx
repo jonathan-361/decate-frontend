@@ -6,13 +6,19 @@ interface AuthLayoutProps {
   children: React.ReactNode;
   title: string;
   description: string;
+  contentMaxWidth?: string;
 }
 
-function AuthLayout({ children, title, description }: AuthLayoutProps) {
+function AuthLayout({
+  children,
+  title,
+  description,
+  contentMaxWidth = "max-w-sm",
+}: AuthLayoutProps) {
   return (
     <div className="min-h-screen w-full flex">
       {/* Left panel - decorative */}
-      <div className="hidden lg:flex lg:w-1/2 relative bg-primary flex-col justify-between p-12 overflow-hidden">
+      <div className="hidden lg:flex lg:w-1/3 xl:w-[28%] relative bg-primary flex-col justify-between p-8 lg:p-10 overflow-hidden shrink-0">
         {/* Background pattern */}
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-[-20%] left-[-10%] w-[500px] h-[500px] rounded-full bg-primary-foreground" />
@@ -59,11 +65,11 @@ function AuthLayout({ children, title, description }: AuthLayoutProps) {
       </div>
 
       {/* Right panel - form */}
-      <div className="flex flex-1 flex-col items-center justify-center px-6 py-12 lg:px-16">
+      <div className="flex flex-1 flex-col items-center justify-center px-6 py-6 lg:px-12 lg:py-8 overflow-y-auto">
         {/* Mobile logo */}
         <Link
           to={paths.login}
-          className="lg:hidden flex items-center gap-2 mb-10"
+          className="lg:hidden flex items-center gap-2 mb-6"
         >
           <div className="flex size-9 items-center justify-center rounded-none bg-primary border border-primary/20">
             <GraduationCap className="size-4 text-primary-foreground" />
@@ -73,9 +79,9 @@ function AuthLayout({ children, title, description }: AuthLayoutProps) {
           </span>
         </Link>
 
-        <div className="w-full max-w-sm">
+        <div className={`w-full ${contentMaxWidth}`}>
           {/* Header */}
-          <div className="mb-8 text-left">
+          <div className="mb-5 text-left">
             <h1 className="text-2xl font-heading font-semibold tracking-tight text-foreground mb-1">
               {title}
             </h1>

@@ -2,6 +2,11 @@ import { z } from "zod";
 
 const NAME_REGEX = /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+$/;
 
+export const turnoSchema = z.enum(["MATUTINO", "VESPERTINO"], {
+  message: "Selecciona un turno",
+});
+export type Turno = z.infer<typeof turnoSchema>;
+
 export const registerSchema = z
   .object({
     nombre: z
@@ -28,6 +33,27 @@ export const registerSchema = z
       .min(1, "La matrícula es requerida")
       .regex(/^\d+$/, "La matrícula solo debe contener números")
       .refine((val) => Number(val) > 0, "La matrícula debe ser un número positivo"),
+    telefono: z
+      .string()
+      .trim()
+      .min(1, "El teléfono es requerido")
+      .min(10, "El teléfono debe tener al menos 10 dígitos")
+      .regex(/^\d+$/, "El teléfono solo debe contener números"),
+    universidad: z
+      .string()
+      .trim()
+      .min(1, "La universidad es requerida"),
+    carrera: z
+      .string()
+      .trim()
+      .min(1, "La carrera es requerida"),
+    semestre: z
+      .string()
+      .trim()
+      .min(1, "El semestre es requerido")
+      .regex(/^\d+$/, "El semestre debe ser un número")
+      .refine((val) => Number(val) > 0, "El semestre debe ser un número positivo"),
+    turno: turnoSchema,
     email: z
       .string()
       .trim()

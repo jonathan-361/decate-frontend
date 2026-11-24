@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Eye, EyeOff, Loader2, UserPlus } from "lucide-react";
 import { toast } from "sonner";
@@ -9,6 +9,13 @@ import { cn } from "cn";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Field,
   FieldError,
@@ -34,6 +41,7 @@ function RegisterPage() {
   const {
     register,
     handleSubmit,
+    control,
     formState: { errors, isSubmitting },
   } = useForm<RegisterFormValues>({
     resolver: zodResolver(registerSchema),
@@ -42,6 +50,11 @@ function RegisterPage() {
       apellidoPaterno: "",
       apellidoMaterno: "",
       matricula: "",
+      telefono: "",
+      universidad: "",
+      carrera: "",
+      semestre: "1",
+      turno: "MATUTINO",
       email: "",
       password: "",
       confirmPassword: "",
@@ -55,6 +68,11 @@ function RegisterPage() {
         apellidoPaterno: data.apellidoPaterno,
         apellidoMaterno: data.apellidoMaterno,
         matricula: Number(data.matricula),
+        telefono: data.telefono,
+        universidad: data.universidad,
+        carrera: data.carrera,
+        semestre: Number(data.semestre),
+        turno: data.turno,
         correo: data.email,
         password: data.password,
       });
@@ -69,12 +87,13 @@ function RegisterPage() {
     <AuthLayout
       title="Crea tu cuenta"
       description="Regístrate para comenzar a organizar tu vida académica."
+      contentMaxWidth="max-w-xl lg:max-w-2xl"
     >
       <form onSubmit={handleSubmit(onSubmit)} noValidate>
         <FieldSet disabled={isSubmitting} className="border-0 p-0 m-0 min-w-0">
-          <FieldGroup className="gap-6">
+          <FieldGroup className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-3">
             {/* Nombre */}
-            <Field data-invalid={!!errors.nombre}>
+            <Field className="sm:col-span-2" data-invalid={!!errors.nombre}>
               <FieldLabel>
                 <Label htmlFor="nombre">Nombre(s)</Label>
               </FieldLabel>
@@ -95,7 +114,7 @@ function RegisterPage() {
             </Field>
 
             {/* Apellido paterno */}
-            <Field data-invalid={!!errors.apellidoPaterno}>
+            <Field className="sm:col-span-1" data-invalid={!!errors.apellidoPaterno}>
               <FieldLabel>
                 <Label htmlFor="apellidoPaterno">Apellido paterno</Label>
               </FieldLabel>
@@ -118,7 +137,7 @@ function RegisterPage() {
             </Field>
 
             {/* Apellido materno */}
-            <Field data-invalid={!!errors.apellidoMaterno}>
+            <Field className="sm:col-span-1" data-invalid={!!errors.apellidoMaterno}>
               <FieldLabel>
                 <Label htmlFor="apellidoMaterno">Apellido materno</Label>
               </FieldLabel>
@@ -141,7 +160,7 @@ function RegisterPage() {
             </Field>
 
             {/* Matrícula */}
-            <Field data-invalid={!!errors.matricula}>
+            <Field className="sm:col-span-1" data-invalid={!!errors.matricula}>
               <FieldLabel>
                 <Label htmlFor="matricula">Matrícula</Label>
               </FieldLabel>
@@ -161,8 +180,118 @@ function RegisterPage() {
               {errors.matricula && <FieldError errors={[errors.matricula]} />}
             </Field>
 
+            {/* Teléfono */}
+            <Field className="sm:col-span-1" data-invalid={!!errors.telefono}>
+              <FieldLabel>
+                <Label htmlFor="telefono">Teléfono (10 dígitos)</Label>
+              </FieldLabel>
+              <Input
+                id="telefono"
+                type="tel"
+                inputMode="numeric"
+                placeholder="5512345678"
+                aria-invalid={!!errors.telefono}
+                disabled={isSubmitting}
+                {...register("telefono", {
+                  onChange: (e) => {
+                    e.target.value = e.target.value.replace(/\D/g, "");
+                  },
+                })}
+              />
+              {errors.telefono && <FieldError errors={[errors.telefono]} />}
+            </Field>
+
+            {/* Universidad */}
+            <Field className="sm:col-span-1" data-invalid={!!errors.universidad}>
+              <FieldLabel>
+                <Label htmlFor="universidad">Universidad / Institución</Label>
+              </FieldLabel>
+              <Input
+                id="universidad"
+                type="text"
+                placeholder="Ej. Universidad Autónoma"
+                aria-invalid={!!errors.universidad}
+                disabled={isSubmitting}
+                {...register("universidad")}
+              />
+              {errors.universidad && <FieldError errors={[errors.universidad]} />}
+            </Field>
+
+            {/* Carrera */}
+            <Field className="sm:col-span-1" data-invalid={!!errors.carrera}>
+              <FieldLabel>
+                <Label htmlFor="carrera">Carrera</Label>
+              </FieldLabel>
+              <Input
+                id="carrera"
+                type="text"
+                placeholder="Ej. Ingeniería en Sistemas"
+                aria-invalid={!!errors.carrera}
+                disabled={isSubmitting}
+                {...register("carrera")}
+              />
+              {errors.carrera && <FieldError errors={[errors.carrera]} />}
+            </Field>
+
+            {/* Semestre */}
+            <Field className="sm:col-span-1" data-invalid={!!errors.semestre}>
+              <FieldLabel>
+                <Label htmlFor="semestre">Semestre</Label>
+              </FieldLabel>
+              <Controller
+                name="semestre"
+                control={control}
+                render={({ field }) => (
+                  <Select
+                    value={field.value}
+                    onValueChange={(val) => field.onChange(val ?? "1")}
+                    disabled={isSubmitting}
+                  >
+                    <SelectTrigger id="semestre" className="w-full">
+                      <SelectValue placeholder="Semestre" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((s) => (
+                        <SelectItem key={s} value={String(s)}>
+                          {s}° Semestre
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+              {errors.semestre && <FieldError errors={[errors.semestre]} />}
+            </Field>
+
+            {/* Turno */}
+            <Field className="sm:col-span-1" data-invalid={!!errors.turno}>
+              <FieldLabel>
+                <Label htmlFor="turno">Turno escolar</Label>
+              </FieldLabel>
+              <Controller
+                name="turno"
+                control={control}
+                render={({ field }) => (
+                  <Select
+                    value={field.value}
+                    onValueChange={(val) => field.onChange(val ?? "MATUTINO")}
+                    disabled={isSubmitting}
+                  >
+                    <SelectTrigger id="turno" className="w-full">
+                      <SelectValue placeholder="Turno" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="MATUTINO">Matutino</SelectItem>
+                      <SelectItem value="VESPERTINO">Vespertino</SelectItem>
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+              {errors.turno && <FieldError errors={[errors.turno]} />}
+            </Field>
+
             {/* Email */}
-            <Field data-invalid={!!errors.email}>
+            <Field className="sm:col-span-2" data-invalid={!!errors.email}>
               <FieldLabel>
                 <Label htmlFor="email">Correo electrónico</Label>
               </FieldLabel>
@@ -179,7 +308,7 @@ function RegisterPage() {
             </Field>
 
             {/* Password */}
-            <Field data-invalid={!!errors.password}>
+            <Field className="sm:col-span-1" data-invalid={!!errors.password}>
               <FieldLabel>
                 <Label htmlFor="password">Contraseña</Label>
               </FieldLabel>
@@ -204,14 +333,11 @@ function RegisterPage() {
                   {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
                 </button>
               </div>
-              <p className="text-[0.75rem] text-muted-foreground mt-1">
-                Mínimo 8 caracteres, al menos una mayúscula, una minúscula, un número y un símbolo especial.
-              </p>
               {errors.password && <FieldError errors={[errors.password]} />}
             </Field>
 
             {/* Confirm password */}
-            <Field data-invalid={!!errors.confirmPassword}>
+            <Field className="sm:col-span-1" data-invalid={!!errors.confirmPassword}>
               <FieldLabel>
                 <Label htmlFor="confirmPassword">Confirmar contraseña</Label>
               </FieldLabel>
@@ -241,8 +367,13 @@ function RegisterPage() {
               )}
             </Field>
 
+            {/* Password hint */}
+            <p className="sm:col-span-2 text-[0.75rem] text-muted-foreground">
+              Mínimo 8 caracteres, al menos una mayúscula, una minúscula, un número y un símbolo especial.
+            </p>
+
             {/* Terms note */}
-            <p className="text-xs text-muted-foreground leading-relaxed">
+            <p className="sm:col-span-2 text-xs text-muted-foreground leading-relaxed pt-1">
               Al registrarte, aceptas nuestros{" "}
               <span className="text-primary underline underline-offset-4 cursor-pointer hover:text-primary/80">
                 Términos de servicio
@@ -257,7 +388,7 @@ function RegisterPage() {
             {/* Submit */}
             <Button
               type="submit"
-              className="w-full"
+              className="sm:col-span-2 w-full mt-1"
               size="lg"
               disabled={isSubmitting}
             >
@@ -273,7 +404,7 @@ function RegisterPage() {
       </form>
 
       {/* Divider */}
-      <div className="my-6 flex items-center gap-3">
+      <div className="my-4 flex items-center gap-3">
         <Separator className="flex-1" />
         <span className="text-xs text-muted-foreground font-medium uppercase tracking-wider">
           o

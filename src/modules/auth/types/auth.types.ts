@@ -1,5 +1,7 @@
 // Tipos espejo de lo que devuelve el backend
 
+export type Turno = "MATUTINO" | "VESPERTINO";
+
 export interface ApiResponse<T = unknown> {
   success: boolean;
   message: string;
@@ -25,4 +27,9 @@ export interface RegistroPayload {
   matricula: number;
   correo: string;
   password: string;
+  telefono: string;
+  universidad: string;
+  carrera: string;
+  semestre: number;
+  turno: Turno;
 }
