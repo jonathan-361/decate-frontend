@@ -14,9 +14,8 @@ import {
 import { PageContainer, PageHeader } from "@/components/custom";
 import type { Task, TaskPayload, TaskStatus } from "@/modules/tasks/schemas";
 import {
-  MATERIAS,
-  MATERIA_COLOR,
-  MATERIA_LABEL,
+  getMateriaColor,
+  getMateriaLabel,
 } from "@/modules/tasks/data/taskMeta";
 import { useTaskStore } from "@/modules/tasks/stores/task.store";
 import { dueDateTime } from "@/modules/tasks/utils/taskDate";
@@ -28,8 +27,6 @@ const TABS: { value: TaskStatus; label: string }[] = [
   { value: "EnProceso", label: "En proceso" },
   { value: "Completado", label: "Completadas" },
 ];
-
-const SUBJECT_FILTER_ITEMS = { todas: "Todas las materias", ...MATERIA_LABEL };
 
 const errorMessage = (e: unknown) =>
   e instanceof Error ? e.message : "Ocurrió un error";
@@ -54,17 +51,34 @@ export default function TasksPage() {
     void fetchTasks();
   }, [fetchTasks]);
 
-  // ── Filtros (en cliente: el backend solo filtra por materia/prioridad, no por texto) ──
+  const availableSubjects = Array.from(
+    new Set(tasks.map((t) => t.materia).filter(Boolean)),
+  ).sort((a, b) => getMateriaLabel(a).localeCompare(getMateriaLabel(b), "es"));
+
+  const subjectFilterItems: Record<string, string> = {
+    todas: "Todas las materias",
+    ...Object.fromEntries(
+      availableSubjects.map((m) => [m, getMateriaLabel(m)]),
+    ),
+  };
+
+  const activeSubjectFilter =
+    filterSubject === "todas" || availableSubjects.includes(filterSubject)
+      ? filterSubject
+      : "todas";
+
+  // ── Filtros en cliente ──
   const filtered = tasks.filter((t) => {
     const q = search.toLowerCase();
     const matchSearch =
       !q ||
       t.titulo.toLowerCase().includes(q) ||
-      MATERIA_LABEL[t.materia].toLowerCase().includes(q);
+      getMateriaLabel(t.materia).toLowerCase().includes(q) ||
+      t.materia.toLowerCase().includes(q);
     const matchPriority =
       filterPriority === "todas" || t.prioridad === filterPriority;
     const matchSubject =
-      filterSubject === "todas" || t.materia === filterSubject;
+      activeSubjectFilter === "todas" || t.materia === activeSubjectFilter;
     return matchSearch && matchPriority && matchSubject;
   });
 
@@ -94,7 +108,9 @@ export default function TasksPage() {
       } else {
         await createTask(payload);
         if (!navigator.onLine) {
-          toast.success("Tarea guardada sin conexión (se sincronizará al conectar)");
+          toast.success(
+            "Tarea guardada sin conexión (se sincronizará al conectar)",
+          );
         } else {
           toast.success("Tarea creada");
         }
@@ -169,8 +185,8 @@ export default function TasksPage() {
         </div>
 
         <Select
-          value={filterSubject}
-          items={SUBJECT_FILTER_ITEMS}
+          value={activeSubjectFilter}
+          items={subjectFilterItems}
           onValueChange={(v) => setFilterSubject(v ?? "todas")}
         >
           <SelectTrigger className="w-auto min-w-36">
@@ -178,12 +194,12 @@ export default function TasksPage() {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="todas">Todas las materias</SelectItem>
-            {MATERIAS.map((m) => (
+            {availableSubjects.map((m) => (
               <SelectItem key={m} value={m}>
                 <span
-                  className={`inline-block size-2 rounded-full mr-2 ${MATERIA_COLOR[m]}`}
+                  className={`inline-block size-2 rounded-full mr-2 ${getMateriaColor(m)}`}
                 />
-                {MATERIA_LABEL[m]}
+                {getMateriaLabel(m)}
               </SelectItem>
             ))}
           </SelectContent>

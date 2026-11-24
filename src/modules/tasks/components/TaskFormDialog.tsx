@@ -26,18 +26,13 @@ import {
   taskStatusSchema,
 } from "@/modules/tasks/schemas";
 import type { Task, TaskPayload } from "@/modules/tasks/schemas";
-import {
-  ESTADO_LABEL,
-  MATERIAS,
-  MATERIA_COLOR,
-  MATERIA_LABEL,
-} from "@/modules/tasks/data/taskMeta";
+import { ESTADO_LABEL, getMateriaLabel } from "@/modules/tasks/data/taskMeta";
 import { toDateInput, toTimeInput } from "@/modules/tasks/utils/taskDate";
 
 const EMPTY: TaskPayload = {
   titulo: "",
   descripcion: "",
-  materia: "Otra",
+  materia: "",
   fechaEntrega: "",
   hora: "23:59",
   prioridad: "Media",
@@ -47,7 +42,7 @@ const EMPTY: TaskPayload = {
 const fromTask = (t: Task): TaskPayload => ({
   titulo: t.titulo,
   descripcion: t.descripcion,
-  materia: t.materia,
+  materia: getMateriaLabel(t.materia),
   fechaEntrega: toDateInput(t.fechaEntrega),
   hora: toTimeInput(t.hora),
   prioridad: t.prioridad,
@@ -130,27 +125,14 @@ export function TaskFormDialog({
 
           <Field>
             <FieldLabel>
-              <Label>Materia</Label>
+              <Label htmlFor="task-subject">Materia *</Label>
             </FieldLabel>
-            <Select
+            <Input
+              id="task-subject"
+              placeholder="Ej. Cálculo Diferencial"
               value={form.materia}
-              items={MATERIA_LABEL}
-              onValueChange={(v) => v && set("materia", v)}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Selecciona una materia" />
-              </SelectTrigger>
-              <SelectContent>
-                {MATERIAS.map((m) => (
-                  <SelectItem key={m} value={m}>
-                    <span
-                      className={`inline-block size-2 rounded-full mr-2 ${MATERIA_COLOR[m]}`}
-                    />
-                    {MATERIA_LABEL[m]}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+              onChange={(e) => set("materia", e.target.value)}
+            />
           </Field>
 
           <div className="grid grid-cols-2 gap-3">

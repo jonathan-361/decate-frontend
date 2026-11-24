@@ -1,6 +1,5 @@
 import { z } from "zod";
 
-// Los valores son EXACTAMENTE los enums de Prisma (sin tildes ni guiones): no hay capa de conversión.
 export const taskPrioritySchema = z.enum(["Alta", "Media", "Baja"]);
 export type TaskPriority = z.infer<typeof taskPrioritySchema>;
 
@@ -11,15 +10,6 @@ export const taskStatusSchema = z.enum([
 ]);
 export type TaskStatus = z.infer<typeof taskStatusSchema>;
 
-export const taskSubjectSchema = z.enum([
-  "Calculo",
-  "Programacion",
-  "Historia",
-  "Electronica",
-  "Otra",
-]);
-export type TaskSubject = z.infer<typeof taskSubjectSchema>;
-
 /** Espeja crearTareaSchema del backend. fechaEntrega: YYYY-MM-DD, hora: HH:mm. */
 export const taskFormSchema = z.object({
   titulo: z
@@ -28,7 +18,11 @@ export const taskFormSchema = z.object({
     .min(1, "El título es requerido")
     .max(120, "El título no debe exceder 120 caracteres"),
   descripcion: z.string().optional(),
-  materia: taskSubjectSchema,
+  materia: z
+    .string()
+    .trim()
+    .min(1, "La materia es requerida")
+    .max(80, "La materia no debe exceder 80 caracteres"),
   fechaEntrega: z.string().min(1, "La fecha de entrega es requerida"),
   hora: z
     .string()
@@ -45,7 +39,7 @@ export interface Task {
   id: number;
   titulo: string;
   descripcion: string;
-  materia: TaskSubject;
+  materia: string;
   fechaEntrega: string;
   hora: string;
   prioridad: TaskPriority;

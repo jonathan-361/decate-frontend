@@ -1,9 +1,6 @@
-import { taskSubjectSchema } from "@/modules/tasks/schemas";
-import type { TaskStatus, TaskSubject } from "@/modules/tasks/schemas";
+import type { TaskStatus } from "@/modules/tasks/schemas";
 
-export const MATERIAS = taskSubjectSchema.options;
-
-export const MATERIA_LABEL: Record<TaskSubject, string> = {
+const LEGACY_MATERIA_LABEL: Record<string, string> = {
   Calculo: "Cálculo",
   Programacion: "Programación",
   Historia: "Historia",
@@ -11,13 +8,31 @@ export const MATERIA_LABEL: Record<TaskSubject, string> = {
   Otra: "Otra",
 };
 
-export const MATERIA_COLOR: Record<TaskSubject, string> = {
-  Calculo: "bg-blue-500",
-  Programacion: "bg-emerald-500",
-  Historia: "bg-amber-500",
-  Electronica: "bg-violet-500",
-  Otra: "bg-muted-foreground",
-};
+const SUBJECT_PALETTE = [
+  "bg-blue-500",
+  "bg-emerald-500",
+  "bg-amber-500",
+  "bg-violet-500",
+  "bg-rose-500",
+  "bg-sky-500",
+  "bg-teal-500",
+  "bg-orange-500",
+] as const;
+
+export function getMateriaLabel(materia: string): string {
+  return LEGACY_MATERIA_LABEL[materia] ?? materia;
+}
+
+export function getMateriaColor(materia: string): string {
+  const normalized = materia.trim().toLowerCase();
+  if (!normalized || normalized === "otra") return "bg-muted-foreground";
+
+  let hash = 0;
+  for (let i = 0; i < normalized.length; i++) {
+    hash = (hash * 31 + normalized.charCodeAt(i)) >>> 0;
+  }
+  return SUBJECT_PALETTE[hash % SUBJECT_PALETTE.length];
+}
 
 export const ESTADO_LABEL: Record<TaskStatus, string> = {
   Pendiente: "Pendiente",

@@ -13,8 +13,8 @@ import { priorityConfig } from "@/components/custom";
 import type { Task, TaskStatus } from "@/modules/tasks/schemas";
 import {
   ESTADO_LABEL,
-  MATERIA_COLOR,
-  MATERIA_LABEL,
+  getMateriaColor,
+  getMateriaLabel,
 } from "@/modules/tasks/data/taskMeta";
 import { dueDateTime, toTimeInput } from "@/modules/tasks/utils/taskDate";
 
@@ -59,9 +59,8 @@ export function TaskCard({
 
   return (
     <div
-      className={`group flex gap-3 border border-border rounded-none p-4 hover:border-foreground/20 transition-colors ${
-        done ? "opacity-60" : ""
-      }`}
+      className={`group flex gap-3 border border-border rounded-none p-4 hover:border-foreground/20 transition-colors ${done ? "opacity-60" : ""
+        }`}
     >
       <div className="pt-0.5 shrink-0">
         <Checkbox
@@ -74,9 +73,8 @@ export function TaskCard({
 
       <div className="flex-1 min-w-0 space-y-1.5">
         <p
-          className={`text-sm font-medium leading-snug ${
-            done ? "line-through text-muted-foreground" : "text-foreground"
-          }`}
+          className={`text-sm font-medium leading-snug ${done ? "line-through text-muted-foreground" : "text-foreground"
+            }`}
         >
           {task.titulo}
         </p>
@@ -90,17 +88,16 @@ export function TaskCard({
         <div className="flex items-center gap-2 flex-wrap pt-0.5">
           <span className="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
             <span
-              className={`inline-block size-1.5 rounded-full ${MATERIA_COLOR[task.materia]}`}
+              className={`inline-block size-1.5 rounded-full ${getMateriaColor(task.materia)}`}
             />
-            {MATERIA_LABEL[task.materia]}
+            {getMateriaLabel(task.materia)}
           </span>
 
           <span className="text-muted-foreground/40">·</span>
 
           <span
-            className={`text-xs font-medium inline-flex items-center gap-1 ${
-              overdue ? "text-destructive" : "text-muted-foreground"
-            }`}
+            className={`text-xs font-medium inline-flex items-center gap-1 ${overdue ? "text-destructive" : "text-muted-foreground"
+              }`}
           >
             {overdue && <AlertCircle className="size-3" />}
             {formatDueDate(task)}

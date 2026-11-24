@@ -3,7 +3,10 @@ import { AlertCircle, ArrowRight, CheckCircle2 } from "lucide-react";
 import { paths } from "@/modules/core/routes/paths/path";
 import { SectionHeader, PriorityDot } from "@/components/custom";
 import type { Task } from "@/modules/tasks/schemas";
-import { MATERIA_COLOR, MATERIA_LABEL } from "@/modules/tasks/data/taskMeta";
+import {
+  getMateriaColor,
+  getMateriaLabel,
+} from "@/modules/tasks/data/taskMeta";
 import { dueDateTime, toTimeInput } from "@/modules/tasks/utils/taskDate";
 
 interface PendingTasksSectionProps {
@@ -32,7 +35,10 @@ function formatTaskDate(task: Task): string {
   );
 }
 
-export function PendingTasksSection({ tasks, isLoading }: PendingTasksSectionProps) {
+export function PendingTasksSection({
+  tasks,
+  isLoading,
+}: PendingTasksSectionProps) {
   return (
     <section>
       <SectionHeader title="Tareas pendientes" linkTo={paths.tasks} />
@@ -56,8 +62,8 @@ export function PendingTasksSection({ tasks, isLoading }: PendingTasksSectionPro
           tasks.slice(0, 5).map((task) => {
             const overdue = dueDateTime(task) < new Date();
             const isUrgent = task.prioridad === "Alta" || overdue;
-            const subjectLabel = MATERIA_LABEL[task.materia] ?? task.materia;
-            const subjectColor = MATERIA_COLOR[task.materia] ?? "bg-primary";
+            const subjectLabel = getMateriaLabel(task.materia);
+            const subjectColor = getMateriaColor(task.materia);
 
             return (
               <div
@@ -73,21 +79,26 @@ export function PendingTasksSection({ tasks, isLoading }: PendingTasksSectionPro
                     {task.titulo}
                   </p>
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className="text-xs text-muted-foreground">{subjectLabel}</span>
+                    <span className="text-xs text-muted-foreground">
+                      {subjectLabel}
+                    </span>
                     <span className="text-muted-foreground/40 text-xs">·</span>
                     <span
-                      className={`text-xs font-medium ${
-                        isUrgent ? "text-destructive" : "text-muted-foreground"
-                      }`}
+                      className={`text-xs font-medium ${isUrgent ? "text-destructive" : "text-muted-foreground"
+                        }`}
                     >
-                      {isUrgent && <AlertCircle className="inline size-3 mr-0.5 -mt-px" />}
+                      {isUrgent && (
+                        <AlertCircle className="inline size-3 mr-0.5 -mt-px" />
+                      )}
                       {formatTaskDate(task)}
                     </span>
                   </div>
                 </div>
                 <div className="flex items-center gap-1.5 shrink-0">
                   <PriorityDot priority={task.prioridad} />
-                  <span className="text-xs text-muted-foreground">{task.prioridad}</span>
+                  <span className="text-xs text-muted-foreground">
+                    {task.prioridad}
+                  </span>
                 </div>
               </div>
             );
@@ -107,4 +118,3 @@ export function PendingTasksSection({ tasks, isLoading }: PendingTasksSectionPro
     </section>
   );
 }
-
