@@ -1,5 +1,4 @@
-import { format, subMinutes } from "date-fns";
-import { es } from "date-fns/locale";
+import { subMinutes } from "date-fns";
 import type { Task } from "@/modules/tasks/schemas";
 import type { Exam } from "@/modules/exams/schemas";
 import { getMateriaColor, getMateriaLabel } from "@/modules/tasks/data/taskMeta";
@@ -14,7 +13,7 @@ import type {
     UpcomingReminder,
 } from "@/modules/reminders/schemas";
 
-/** Avisos que aún no se han disparado: tareas y exámenes pendientes cuya hora de aviso es futura. */
+/** Tareas y exámenes pendientes, cada uno con su hora de aviso y si ese aviso ya salió. */
 export function buildUpcomingReminders(
     tasks: Task[],
     exams: Exam[],
@@ -26,34 +25,37 @@ export function buildUpcomingReminders(
     for (const task of tasks) {
         if (task.estado === "Completado") continue;
         const due = dueDateTime(task);
-        const fireAt = subMinutes(due, leadTimeToMinutes(rules.task.leadTime));
-        if (Number.isNaN(fireAt.getTime()) || fireAt.getTime() <= now) continue;
+        if (Number.isNaN(due.getTime()) || due.getTime() <= now) continue;
 
+        const fireAt = subMinutes(due, leadTimeToMinutes(rules.task.leadTime));
         reminders.push({
             id: `task-${task.id}`,
             category: "task",
             title: task.titulo,
-            detail: `Entrega ${format(due, "EEE d MMM · HH:mm", { locale: es })}`,
             subject: getMateriaLabel(task.materia),
             subjectColor: getMateriaColor(task.materia),
+            dueAt: due,
             fireAt,
+            fired: fireAt.getTime() <= now,
             enabled: rules.task.enabled,
         });
     }
 
     for (const exam of exams) {
         const start = examDateTime(exam);
-        const fireAt = subMinutes(start, leadTimeToMinutes(rules.exam.leadTime));
-        if (Number.isNaN(fireAt.getTime()) || fireAt.getTime() <= now) continue;
+        if (Number.isNaN(start.getTime()) || start.getTime() <= now) continue;
 
+        const fireAt = subMinutes(start, leadTimeToMinutes(rules.exam.leadTime));
         reminders.push({
             id: `exam-${exam.id}`,
             category: "exam",
             title: exam.titulo,
-            detail: `${exam.aula ? `${exam.aula} · ` : ""}${format(start, "EEE d MMM · HH:mm", { locale: es })}`,
             subject: getMateriaLabel(exam.materia),
             subjectColor: getMateriaColor(exam.materia),
+            location: exam.aula || undefined,
+            dueAt: start,
             fireAt,
+            fired: fireAt.getTime() <= now,
             enabled: rules.exam.enabled,
         });
     }

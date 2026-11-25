@@ -1,8 +1,8 @@
-import { isToday, isTomorrow } from "date-fns";
 import { CheckSquare, FlaskConical, type LucideIcon } from "lucide-react";
 import type {
   ReminderCategory,
   ReminderRule,
+  SubjectReminderGroup,
   UpcomingReminder,
 } from "@/modules/reminders/schemas";
 
@@ -45,22 +45,26 @@ export const LEAD_TIME_OPTIONS: Record<
   ],
 };
 
-export function groupUpcoming(reminders: UpcomingReminder[]) {
+/** Agrupa por materia. Los grupos y sus elementos quedan ordenados por la fecha más cercana. */
+export function groupBySubject(
+  reminders: UpcomingReminder[],
+): SubjectReminderGroup[] {
   const sorted = [...reminders].sort(
-    (a, b) => a.fireAt.getTime() - b.fireAt.getTime(),
+    (a, b) => a.dueAt.getTime() - b.dueAt.getTime(),
   );
-  const groups: { key: string; label: string; items: UpcomingReminder[] }[] = [
-    { key: "today", label: "Hoy", items: [] },
-    { key: "tomorrow", label: "Mañana", items: [] },
-    { key: "later", label: "Próximos días", items: [] },
-  ];
+  const groups = new Map<string, SubjectReminderGroup>();
+
   for (const reminder of sorted) {
-    const group = isToday(reminder.fireAt)
-      ? groups[0]
-      : isTomorrow(reminder.fireAt)
-        ? groups[1]
-        : groups[2];
+    const key = reminder.subject.trim().toLowerCase();
+    const group = groups.get(key) ?? {
+      key,
+      subject: reminder.subject,
+      color: reminder.subjectColor,
+      items: [],
+    };
     group.items.push(reminder);
+    groups.set(key, group);
   }
-  return groups.filter((g) => g.items.length > 0);
+
+  return [...groups.values()];
 }

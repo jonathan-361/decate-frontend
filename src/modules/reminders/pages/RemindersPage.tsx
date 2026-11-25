@@ -155,7 +155,7 @@ export default function RemindersPage() {
   );
   const entries = useMemo(() => items.map(toNotificationEntry), [items]);
   const unread = entries.filter((e) => !e.read).length;
-  const scheduled = upcoming.filter((r) => r.enabled).length;
+  const scheduled = upcoming.filter((r) => r.enabled && !r.fired).length;
 
   const run = async (action: () => Promise<void>, success?: string) => {
     try {

@@ -1,9 +1,9 @@
 import { BellOff } from "lucide-react";
-import { SectionHeader } from "@/components/custom";
+import { cn } from "@/lib/utils";
 import { RemindersEmptyState } from "@/modules/reminders/components/RemindersEmptyState";
 import { UpcomingReminderRow } from "@/modules/reminders/components/UpcomingReminderRow";
 import type { UpcomingReminder } from "@/modules/reminders/schemas";
-import { groupUpcoming } from "@/modules/reminders/data/reminderMeta";
+import { groupBySubject } from "@/modules/reminders/data/reminderMeta";
 
 interface UpcomingRemindersProps {
   reminders: UpcomingReminder[];
@@ -14,14 +14,14 @@ export function UpcomingReminders({
   reminders,
   disabled,
 }: UpcomingRemindersProps) {
-  const groups = groupUpcoming(reminders);
+  const groups = groupBySubject(reminders);
 
   if (groups.length === 0) {
     return (
       <RemindersEmptyState
         icon={BellOff}
         title="Sin avisos programados"
-        description="Cuando agregues tareas o exámenes, sus avisos aparecerán aquí."
+        description="Cuando agregues tareas o exámenes pendientes, aparecerán aquí por materia."
       />
     );
   }
@@ -30,7 +30,19 @@ export function UpcomingReminders({
     <div className="space-y-6">
       {groups.map((group) => (
         <section key={group.key}>
-          <SectionHeader title={group.label} />
+          <div className="mb-3 flex items-center gap-2">
+            <span
+              className={cn("size-2 shrink-0 rounded-full", group.color)}
+              aria-hidden="true"
+            />
+            <h3 className="font-heading text-sm font-semibold uppercase tracking-wider text-foreground">
+              {group.subject}
+            </h3>
+            <span className="text-xs text-muted-foreground">
+              {group.items.length}{" "}
+              {group.items.length === 1 ? "pendiente" : "pendientes"}
+            </span>
+          </div>
           <ul className="divide-y divide-border rounded-none border border-border">
             {group.items.map((reminder) => (
               <UpcomingReminderRow
