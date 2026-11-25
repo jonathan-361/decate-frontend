@@ -1,11 +1,12 @@
 import { AlertCircle, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { Exam } from "@/modules/exams/data/mockExams";
+import type { Exam } from "@/modules/exams/schemas";
 import {
   formatCountdown,
   getTimeRemaining,
   isExamUrgent,
 } from "@/modules/exams/data/examMeta";
+import { examDateTime } from "@/modules/exams/utils/examDate";
 
 interface ExamCountdownProps {
   exam: Exam;
@@ -13,7 +14,7 @@ interface ExamCountdownProps {
 
 /** Tiempo restante en una línea, para el encabezado de cada tarjeta. */
 export function ExamCountdown({ exam }: ExamCountdownProps) {
-  const remaining = getTimeRemaining(exam.date);
+  const remaining = getTimeRemaining(examDateTime(exam));
   const urgent = isExamUrgent(exam);
   const Icon = urgent ? AlertCircle : Clock;
 

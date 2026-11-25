@@ -3,15 +3,18 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { ExamCountdown } from "@/modules/exams/components/ExamCountdown";
 import { ExamTopicsList } from "@/modules/exams/components/ExamTopicsList";
-import { StudyReminders } from "@/modules/exams/components/StudyReminders";
-import type { Exam } from "@/modules/exams/data/mockExams";
+import type { Exam } from "@/modules/exams/schemas";
 import { formatExamSchedule, isPastExam } from "@/modules/exams/data/examMeta";
+import { parseTopics } from "@/modules/exams/utils/examDate";
+import { getMateriaColor } from "@/modules/tasks/data/taskMeta";
 
 interface ExamCardProps {
   exam: Exam;
+  onEdit: (exam: Exam) => void;
+  onDelete: (exam: Exam) => void;
 }
 
-export function ExamCard({ exam }: ExamCardProps) {
+export function ExamCard({ exam, onEdit, onDelete }: ExamCardProps) {
   const past = isPastExam(exam);
   const schedule = formatExamSchedule(exam);
 
@@ -30,14 +33,14 @@ export function ExamCard({ exam }: ExamCardProps) {
               <span
                 className={cn(
                   "inline-block size-1.5 rounded-full",
-                  exam.subjectColor,
+                  getMateriaColor(exam.materia),
                 )}
                 aria-hidden="true"
               />
-              {exam.subject}
+              {exam.materia}
             </p>
             <h3 className="font-heading text-lg font-semibold uppercase leading-snug tracking-wider text-foreground">
-              {exam.name}
+              {exam.titulo}
             </h3>
           </div>
 
@@ -46,14 +49,16 @@ export function ExamCard({ exam }: ExamCardProps) {
             <Button
               variant="ghost"
               size="icon"
-              aria-label={`Editar ${exam.name}`}
+              aria-label={`Editar ${exam.titulo}`}
+              onClick={() => onEdit(exam)}
             >
               <Pencil className="size-4" />
             </Button>
             <Button
               variant="ghost"
               size="icon"
-              aria-label={`Eliminar ${exam.name}`}
+              aria-label={`Eliminar ${exam.titulo}`}
+              onClick={() => onDelete(exam)}
             >
               <Trash2 className="size-4" />
             </Button>
@@ -80,18 +85,13 @@ export function ExamCard({ exam }: ExamCardProps) {
             className="size-4 shrink-0 text-muted-foreground"
             aria-hidden="true"
           />
-          {exam.location}
+          {exam.aula}
         </p>
       </div>
 
       {/* Temas */}
-      <div className="border-b border-border p-4">
-        <ExamTopicsList topics={exam.topics} />
-      </div>
-
-      {/* Recordatorios */}
       <div className="p-4">
-        <StudyReminders reminders={exam.reminders} disabled={past} />
+        <ExamTopicsList topics={parseTopics(exam.temasEvaluar)} />
       </div>
     </article>
   );

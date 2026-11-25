@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import type { ExamFilter } from "@/modules/exams/data/mockExams";
+import type { ExamFilter } from "@/modules/exams/schemas";
 
 interface ExamsFilterProps {
   value: ExamFilter;

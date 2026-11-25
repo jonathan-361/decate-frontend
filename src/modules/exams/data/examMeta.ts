@@ -1,6 +1,7 @@
-import { addMinutes, differenceInCalendarDays, format } from "date-fns";
+import { differenceInCalendarDays, format } from "date-fns";
 import { es } from "date-fns/locale";
-import type { Exam } from "@/modules/exams/data/mockExams";
+import type { Exam } from "@/modules/exams/schemas";
+import { examDateTime } from "@/modules/exams/utils/examDate";
 
 const MS_DAY = 86_400_000;
 const MS_HOUR = 3_600_000;
@@ -24,11 +25,13 @@ export function getTimeRemaining(date: Date): TimeRemaining {
   };
 }
 
-export const isPastExam = (exam: Exam) => exam.date.getTime() <= Date.now();
+export const isPastExam = (exam: Exam) =>
+  examDateTime(exam).getTime() <= Date.now();
 
 /** Examen en los próximos 2 días: comparte el criterio de "entrega próxima" del calendario. */
 export const isExamUrgent = (exam: Exam) =>
-  !isPastExam(exam) && differenceInCalendarDays(exam.date, new Date()) <= 2;
+  !isPastExam(exam) &&
+  differenceInCalendarDays(examDateTime(exam), new Date()) <= 2;
 
 export function formatCountdown({
   isPast,
@@ -43,22 +46,19 @@ export function formatCountdown({
 }
 
 export function formatExamSchedule(exam: Exam) {
+  const date = examDateTime(exam);
   return {
-    date: format(exam.date, "EEEE d 'de' MMMM", { locale: es }),
-    time: `${format(exam.date, "HH:mm")} – ${format(
-      addMinutes(exam.date, exam.durationMinutes),
-      "HH:mm",
-    )}`,
+    date: format(date, "EEEE d 'de' MMMM", { locale: es }),
+    time: format(date, "HH:mm"),
   };
 }
-
-export const formatReminderDate = (date: Date) =>
-  format(date, "EEE d MMM · HH:mm", { locale: es });
 
 export const getUpcomingExams = (exams: Exam[]) =>
   exams
     .filter((e) => !isPastExam(e))
-    .sort((a, b) => a.date.getTime() - b.date.getTime());
+    .sort((a, b) => examDateTime(a).getTime() - examDateTime(b).getTime());
 
 export const getPastExams = (exams: Exam[]) =>
-  exams.filter(isPastExam).sort((a, b) => b.date.getTime() - a.date.getTime());
+  exams
+    .filter(isPastExam)
+    .sort((a, b) => examDateTime(b).getTime() - examDateTime(a).getTime());

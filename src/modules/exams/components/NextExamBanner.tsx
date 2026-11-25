@@ -1,9 +1,11 @@
 import { CalendarDays, MapPin } from "lucide-react";
-import type { Exam } from "@/modules/exams/data/mockExams";
+import type { Exam } from "@/modules/exams/schemas";
 import {
   formatExamSchedule,
   getTimeRemaining,
 } from "@/modules/exams/data/examMeta";
+import { examDateTime } from "@/modules/exams/utils/examDate";
+import { getMateriaColor } from "@/modules/tasks/data/taskMeta";
 
 interface NextExamBannerProps {
   exam: Exam;
@@ -11,7 +13,7 @@ interface NextExamBannerProps {
 
 /** El único bloque de tinta de la página: el examen que sigue y su cuenta regresiva. */
 export function NextExamBanner({ exam }: NextExamBannerProps) {
-  const { days, hours, minutes } = getTimeRemaining(exam.date);
+  const { days, hours, minutes } = getTimeRemaining(examDateTime(exam));
   const schedule = formatExamSchedule(exam);
 
   const units = [
@@ -31,14 +33,14 @@ export function NextExamBanner({ exam }: NextExamBannerProps) {
         </p>
         <div className="space-y-1">
           <h2 className="font-heading text-2xl font-semibold uppercase tracking-wider">
-            {exam.name}
+            {exam.titulo}
           </h2>
           <p className="flex items-center gap-2 text-sm text-primary-foreground/80">
             <span
-              className={`inline-block size-1.5 rounded-full ${exam.subjectColor}`}
+              className={`inline-block size-1.5 rounded-full ${getMateriaColor(exam.materia)}`}
               aria-hidden="true"
             />
-            {exam.subject}
+            {exam.materia}
           </p>
         </div>
         <div className="flex flex-wrap gap-x-5 gap-y-1.5 text-sm text-primary-foreground/80">
@@ -49,7 +51,7 @@ export function NextExamBanner({ exam }: NextExamBannerProps) {
           </span>
           <span className="inline-flex items-center gap-1.5">
             <MapPin className="size-4" aria-hidden="true" />
-            {exam.location}
+            {exam.aula}
           </span>
         </div>
       </div>
