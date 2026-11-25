@@ -2,7 +2,7 @@ import { BellOff } from "lucide-react";
 import { SectionHeader } from "@/components/custom";
 import { RemindersEmptyState } from "@/modules/reminders/components/RemindersEmptyState";
 import { UpcomingReminderRow } from "@/modules/reminders/components/UpcomingReminderRow";
-import type { UpcomingReminder } from "@/modules/reminders/data/mockReminders";
+import type { UpcomingReminder } from "@/modules/reminders/schemas";
 import { groupUpcoming } from "@/modules/reminders/data/reminderMeta";
 
 interface UpcomingRemindersProps {
@@ -21,7 +21,7 @@ export function UpcomingReminders({
       <RemindersEmptyState
         icon={BellOff}
         title="Sin avisos programados"
-        description="Cuando agregues tareas, exámenes o clases, sus avisos aparecerán aquí."
+        description="Cuando agregues tareas o exámenes, sus avisos aparecerán aquí."
       />
     );
   }
@@ -36,7 +36,7 @@ export function UpcomingReminders({
               <UpcomingReminderRow
                 key={reminder.id}
                 reminder={reminder}
-                disabled={disabled}
+                disabled={disabled || !reminder.enabled}
               />
             ))}
           </ul>

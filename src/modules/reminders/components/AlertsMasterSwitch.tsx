@@ -33,7 +33,7 @@ export function AlertsMasterSwitch({
         </Label>
         <p className="text-xs text-muted-foreground">
           {enabled
-            ? "Recibirás avisos de tareas, exámenes y clases según tu configuración."
+            ? "Recibirás avisos de tareas y exámenes según tu configuración."
             : "No recibirás ningún aviso. Tu configuración se conserva al reactivarlos."}
         </p>
       </div>

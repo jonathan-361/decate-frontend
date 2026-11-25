@@ -6,24 +6,35 @@ import { RemindersEmptyState } from "@/modules/reminders/components/RemindersEmp
 import type {
   HistoryFilter,
   NotificationEntry,
-} from "@/modules/reminders/data/mockReminders";
+} from "@/modules/reminders/schemas";
 
 const FILTERS: { value: HistoryFilter; label: string }[] = [
   { value: "all", label: "Todas" },
   { value: "task", label: "Tareas" },
   { value: "exam", label: "Exámenes" },
-  { value: "class", label: "Clases" },
 ];
 
 interface NotificationHistoryProps {
   entries: NotificationEntry[];
+  error?: string | null;
+  onMarkRead: (id: number) => void;
+  onMarkAllRead: () => void;
+  onDelete: (id: number) => void;
+  onClearAll: () => void;
 }
 
-export function NotificationHistory({ entries }: NotificationHistoryProps) {
-  // Estado local solo para poder revisar el diseño de cada filtro.
+export function NotificationHistory({
+  entries,
+  error,
+  onMarkRead,
+  onMarkAllRead,
+  onDelete,
+  onClearAll,
+}: NotificationHistoryProps) {
   const [filter, setFilter] = useState<HistoryFilter>("all");
   const visible =
     filter === "all" ? entries : entries.filter((e) => e.category === filter);
+  const hasUnread = entries.some((e) => !e.read);
 
   return (
     <div className="space-y-4">
@@ -48,16 +59,32 @@ export function NotificationHistory({ entries }: NotificationHistoryProps) {
         </div>
 
         <div className="flex gap-2">
-          <Button variant="outline" size="sm">
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={!hasUnread}
+            onClick={onMarkAllRead}
+          >
             <CheckCheck className="size-3.5" />
             Marcar como leído
           </Button>
-          <Button variant="outline" size="sm">
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={entries.length === 0}
+            onClick={onClearAll}
+          >
             <Trash2 className="size-3.5" />
             Borrar historial
           </Button>
         </div>
       </div>
+
+      {error && entries.length === 0 && (
+        <p className="border border-destructive/40 p-3 text-sm text-destructive">
+          {error}
+        </p>
+      )}
 
       {visible.length === 0 ? (
         <RemindersEmptyState
@@ -68,7 +95,12 @@ export function NotificationHistory({ entries }: NotificationHistoryProps) {
       ) : (
         <ul className="divide-y divide-border rounded-none border border-border">
           {visible.map((entry) => (
-            <NotificationItem key={entry.id} entry={entry} />
+            <NotificationItem
+              key={entry.id}
+              entry={entry}
+              onMarkRead={onMarkRead}
+              onDelete={onDelete}
+            />
           ))}
         </ul>
       )}

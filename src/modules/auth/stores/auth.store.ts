@@ -65,6 +65,12 @@ export const useAuthStore = create<AuthState>()((set) => ({
     void import("@/modules/exams/stores/exam.store").then((m) =>
       m.useExamStore.getState().clear()
     );
+    void import("@/modules/reminders/stores/notification.store").then((m) =>
+      m.useNotificationStore.getState().clear()
+    );
+    void import("@/modules/core/services/notifications").then((m) =>
+      m.clearNotifiedState()
+    );
     void import("@/modules/users/stores/profile.store").then((m) =>
       m.useProfileStore.setState({ perfil: null })
     );

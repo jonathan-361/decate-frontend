@@ -11,7 +11,7 @@ import {
 import type {
   ReminderCategory,
   ReminderRule,
-} from "@/modules/reminders/data/mockReminders";
+} from "@/modules/reminders/schemas";
 import {
   CATEGORY_META,
   LEAD_TIME_OPTIONS,

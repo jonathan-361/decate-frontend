@@ -1,15 +1,21 @@
-import { formatDistanceToNow } from "date-fns";
-import { es } from "date-fns/locale";
+import { Check, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { NotificationEntry } from "@/modules/reminders/data/mockReminders";
+import { Button } from "@/components/ui/button";
+import type { NotificationEntry } from "@/modules/reminders/schemas";
 import { CATEGORY_META } from "@/modules/reminders/data/reminderMeta";
 
 interface NotificationItemProps {
   entry: NotificationEntry;
+  onMarkRead: (id: number) => void;
+  onDelete: (id: number) => void;
 }
 
-export function NotificationItem({ entry }: NotificationItemProps) {
-  const { icon: Icon } = CATEGORY_META[entry.category];
+export function NotificationItem({
+  entry,
+  onMarkRead,
+  onDelete,
+}: NotificationItemProps) {
+  const { icon: Icon, label } = CATEGORY_META[entry.category];
 
   return (
     <li
@@ -30,25 +36,34 @@ export function NotificationItem({ entry }: NotificationItemProps) {
           )}
         >
           {entry.title}
+          {!entry.read && <span className="sr-only"> (sin leer)</span>}
         </p>
-        <p className="text-sm text-muted-foreground">{entry.description}</p>
-        <p className="text-xs text-muted-foreground">
-          {formatDistanceToNow(entry.receivedAt, {
-            addSuffix: true,
-            locale: es,
-          })}
-        </p>
+        {entry.description && (
+          <p className="text-sm text-muted-foreground">{entry.description}</p>
+        )}
+        <p className="text-xs text-muted-foreground">{label}</p>
       </div>
 
-      {!entry.read && (
-        <>
-          <span
-            className="mt-1.5 size-1.5 shrink-0 rounded-full bg-primary"
-            aria-hidden="true"
-          />
-          <span className="sr-only">Sin leer</span>
-        </>
-      )}
+      <div className="flex shrink-0 items-center">
+        {!entry.read && (
+          <Button
+            variant="ghost"
+            size="icon"
+            aria-label="Marcar como leída"
+            onClick={() => onMarkRead(entry.id)}
+          >
+            <Check className="size-4" />
+          </Button>
+        )}
+        <Button
+          variant="ghost"
+          size="icon"
+          aria-label="Eliminar notificación"
+          onClick={() => onDelete(entry.id)}
+        >
+          <Trash2 className="size-4" />
+        </Button>
+      </div>
     </li>
   );
 }

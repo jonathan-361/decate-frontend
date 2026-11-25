@@ -1,34 +1,40 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router";
-import { Plus } from "lucide-react";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { PageContainer, PageHeader } from "@/components/custom";
 import { paths } from "@/modules/core/routes/paths/path";
 import {
-  checkAndNotifyUpcomingTasks,
   getNotificationSettings,
   isNotificationSupported,
+  leadTimeFromMinutes,
   leadTimeToMinutes,
   requestNotificationPermission,
   saveNotificationSettings,
   showLocalNotification,
 } from "@/modules/core/services/notifications";
+import { useUpcomingCheck } from "@/modules/core/hooks/useTaskNotifications";
 import { useTaskStore } from "@/modules/tasks/stores/task.store";
+import { useExamStore } from "@/modules/exams/stores/exam.store";
+import { useNotificationStore } from "@/modules/reminders/stores/notification.store";
 import { AlertsMasterSwitch } from "@/modules/reminders/components/AlertsMasterSwitch";
 import { NotificationHistory } from "@/modules/reminders/components/NotificationHistory";
 import { ReminderRuleCard } from "@/modules/reminders/components/ReminderRuleCard";
 import { UpcomingReminders } from "@/modules/reminders/components/UpcomingReminders";
 import {
   INITIAL_RULES,
-  MOCK_NOTIFICATIONS,
-  MOCK_UPCOMING_REMINDERS,
-  type ReminderCategory,
-  type ReminderRule,
-} from "@/modules/reminders/data/mockReminders";
+  LEAD_TIME_OPTIONS,
+} from "@/modules/reminders/data/reminderMeta";
+import type {
+  ReminderCategory,
+  ReminderRule,
+} from "@/modules/reminders/schemas";
+import {
+  buildUpcomingReminders,
+  toNotificationEntry,
+} from "@/modules/reminders/utils/reminders";
 
-const CATEGORIES: ReminderCategory[] = ["task", "exam", "class"];
+const CATEGORIES: ReminderCategory[] = ["task", "exam"];
 
 function CountChip({ value }: { value: number }) {
   return (
@@ -38,16 +44,58 @@ function CountChip({ value }: { value: number }) {
   );
 }
 
+const errorMessage = (err: unknown) =>
+  err instanceof Error ? err.message : "Ocurrió un error inesperado";
+
 export default function RemindersPage() {
   const [allEnabled, setAllEnabled] = useState(false);
-  const [rules, setRules] = useState(INITIAL_RULES);
-  const tasks = useTaskStore((state) => state.tasks);
+  const [rules, setRules] =
+    useState<Record<ReminderCategory, ReminderRule>>(INITIAL_RULES);
+
+  const tasks = useTaskStore((s) => s.tasks);
+  const fetchTasks = useTaskStore((s) => s.fetchTasks);
+  const exams = useExamStore((s) => s.exams);
+  const fetchExams = useExamStore((s) => s.fetchExams);
+
+  const items = useNotificationStore((s) => s.items);
+  const historyError = useNotificationStore((s) => s.error);
+  const fetchNotifications = useNotificationStore((s) => s.fetchNotifications);
+  const markAsRead = useNotificationStore((s) => s.markAsRead);
+  const markAllAsRead = useNotificationStore((s) => s.markAllAsRead);
+  const removeNotification = useNotificationStore((s) => s.removeNotification);
+  const clearAll = useNotificationStore((s) => s.clearAll);
+
+  const runCheck = useUpcomingCheck();
+
+  useEffect(() => {
+    void fetchTasks();
+    void fetchExams();
+    void fetchNotifications();
+  }, [fetchTasks, fetchExams, fetchNotifications]);
 
   useEffect(() => {
     void getNotificationSettings().then((settings) => {
       const granted =
         isNotificationSupported() && Notification.permission === "granted";
       setAllEnabled(settings.enabled && granted);
+      setRules({
+        task: {
+          enabled: settings.taskEnabled,
+          leadTime: leadTimeFromMinutes(
+            settings.taskLeadMinutes,
+            LEAD_TIME_OPTIONS.task.map((o) => o.value),
+            INITIAL_RULES.task.leadTime,
+          ),
+        },
+        exam: {
+          enabled: settings.examEnabled,
+          leadTime: leadTimeFromMinutes(
+            settings.examLeadMinutes,
+            LEAD_TIME_OPTIONS.exam.map((o) => o.value),
+            INITIAL_RULES.exam.leadTime,
+          ),
+        },
+      });
     });
   }, []);
 
@@ -75,50 +123,59 @@ export default function RemindersPage() {
     }
 
     setAllEnabled(true);
-    await saveNotificationSettings({
-      enabled: true,
-      taskLeadMinutes: leadTimeToMinutes(rules.task.leadTime),
-    });
+    await saveNotificationSettings({ enabled: true });
     toast.success("Avisos del navegador activados");
 
     await showLocalNotification("Avisos activados en Dacate", {
-      body: "Te notificaremos cuando tengas tareas próximas a vencer.",
+      body: "Te notificaremos cuando tengas tareas o exámenes próximos.",
       url: paths.reminders,
     });
 
-    if (tasks.length > 0) {
-      await checkAndNotifyUpcomingTasks(tasks);
-    }
+    await runCheck();
   };
 
   const updateRule = (
     category: ReminderCategory,
     patch: Partial<ReminderRule>,
   ) => {
-    setRules((prev) => {
-      const updated = { ...prev[category], ...patch };
-      if (category === "task") {
-        void saveNotificationSettings({
-          taskLeadMinutes: leadTimeToMinutes(updated.leadTime),
-        });
-      }
-      return { ...prev, [category]: updated };
-    });
+    const updated = { ...rules[category], ...patch };
+    setRules((prev) => ({ ...prev, [category]: updated }));
+
+    const minutes = leadTimeToMinutes(updated.leadTime);
+    void saveNotificationSettings(
+      category === "task"
+        ? { taskEnabled: updated.enabled, taskLeadMinutes: minutes }
+        : { examEnabled: updated.enabled, examLeadMinutes: minutes },
+    );
   };
 
-  const unread = MOCK_NOTIFICATIONS.filter((n) => !n.read).length;
+  const upcoming = useMemo(
+    () => buildUpcomingReminders(tasks, exams, rules),
+    [tasks, exams, rules],
+  );
+  const entries = useMemo(() => items.map(toNotificationEntry), [items]);
+  const unread = entries.filter((e) => !e.read).length;
+  const scheduled = upcoming.filter((r) => r.enabled).length;
+
+  const run = async (action: () => Promise<void>, success?: string) => {
+    try {
+      await action();
+      if (success) toast.success(success);
+    } catch (err) {
+      toast.error(errorMessage(err));
+    }
+  };
+
+  const handleClearAll = () => {
+    if (!window.confirm("¿Borrar todo el historial de notificaciones?")) return;
+    void run(clearAll, "Historial borrado");
+  };
 
   return (
     <PageContainer size="md">
       <PageHeader
         title="Recordatorios y avisos"
-        description={`${MOCK_UPCOMING_REMINDERS.length} avisos programados · ${unread} sin leer`}
-        actions={
-          <Button size="sm">
-            <Plus className="size-3.5" />
-            Nuevo recordatorio
-          </Button>
-        }
+        description={`${scheduled} ${scheduled === 1 ? "aviso programado" : "avisos programados"} · ${unread} sin leer`}
       />
 
       <AlertsMasterSwitch
@@ -133,7 +190,7 @@ export default function RemindersPage() {
         >
           <TabsTrigger value="upcoming" className="relative pb-3">
             Próximos
-            <CountChip value={MOCK_UPCOMING_REMINDERS.length} />
+            <CountChip value={upcoming.length} />
           </TabsTrigger>
           <TabsTrigger value="rules" className="relative pb-3">
             Anticipación
@@ -145,14 +202,11 @@ export default function RemindersPage() {
         </TabsList>
 
         <TabsContent value="upcoming" className="mt-4">
-          <UpcomingReminders
-            reminders={MOCK_UPCOMING_REMINDERS}
-            disabled={!allEnabled}
-          />
+          <UpcomingReminders reminders={upcoming} disabled={!allEnabled} />
         </TabsContent>
 
         <TabsContent value="rules" className="mt-4 space-y-4">
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             {CATEGORIES.map((category) => (
               <ReminderRuleCard
                 key={category}
@@ -179,7 +233,16 @@ export default function RemindersPage() {
         </TabsContent>
 
         <TabsContent value="history" className="mt-4">
-          <NotificationHistory entries={MOCK_NOTIFICATIONS} />
+          <NotificationHistory
+            entries={entries}
+            error={historyError}
+            onMarkRead={(id) => void run(() => markAsRead(id))}
+            onMarkAllRead={() =>
+              void run(markAllAsRead, "Notificaciones marcadas como leídas")
+            }
+            onDelete={(id) => void run(() => removeNotification(id))}
+            onClearAll={handleClearAll}
+          />
         </TabsContent>
       </Tabs>
     </PageContainer>

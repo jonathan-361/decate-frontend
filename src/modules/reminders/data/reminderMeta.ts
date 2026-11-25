@@ -1,14 +1,10 @@
 import { isToday, isTomorrow } from "date-fns";
-import {
-  CheckSquare,
-  Clock,
-  FlaskConical,
-  type LucideIcon,
-} from "lucide-react";
+import { CheckSquare, FlaskConical, type LucideIcon } from "lucide-react";
 import type {
   ReminderCategory,
+  ReminderRule,
   UpcomingReminder,
-} from "@/modules/reminders/data/mockReminders";
+} from "@/modules/reminders/schemas";
 
 export const CATEGORY_META: Record<
   ReminderCategory,
@@ -21,14 +17,14 @@ export const CATEGORY_META: Record<
   },
   exam: {
     label: "Exámenes",
-    description: "Cuenta regresiva y recordatorios para estudiar.",
+    description: "Avisos antes de la fecha y hora del examen.",
     icon: FlaskConical,
   },
-  class: {
-    label: "Clases",
-    description: "Aviso con aula y hora antes de cada materia.",
-    icon: Clock,
-  },
+};
+
+export const INITIAL_RULES: Record<ReminderCategory, ReminderRule> = {
+  task: { enabled: true, leadTime: "24h" },
+  exam: { enabled: true, leadTime: "3d" },
 };
 
 export const LEAD_TIME_OPTIONS: Record<
@@ -46,12 +42,6 @@ export const LEAD_TIME_OPTIONS: Record<
     { value: "3d", label: "3 días antes" },
     { value: "5d", label: "5 días antes" },
     { value: "1w", label: "1 semana antes" },
-  ],
-  class: [
-    { value: "5m", label: "5 minutos antes" },
-    { value: "10m", label: "10 minutos antes" },
-    { value: "15m", label: "15 minutos antes" },
-    { value: "30m", label: "30 minutos antes" },
   ],
 };
 

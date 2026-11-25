@@ -1,9 +1,7 @@
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { cn } from "@/lib/utils";
-import { Badge } from "@/components/ui/badge";
-import { Switch } from "@/components/ui/switch";
-import type { UpcomingReminder } from "@/modules/reminders/data/mockReminders";
+import type { UpcomingReminder } from "@/modules/reminders/schemas";
 import { CATEGORY_META } from "@/modules/reminders/data/reminderMeta";
 
 interface UpcomingReminderRowProps {
@@ -15,7 +13,7 @@ export function UpcomingReminderRow({
   reminder,
   disabled,
 }: UpcomingReminderRowProps) {
-  const { icon: Icon, label } = CATEGORY_META[reminder.category];
+  const { icon: Icon } = CATEGORY_META[reminder.category];
 
   return (
     <li
@@ -46,23 +44,12 @@ export function UpcomingReminderRow({
               <span className="text-muted-foreground/40">·</span>
             </>
           )}
-          <span>{reminder.detail}</span>
+          <span className="capitalize">{reminder.detail}</span>
         </div>
         <p className="text-xs capitalize text-muted-foreground">
           Aviso: {format(reminder.fireAt, "EEE d MMM · HH:mm", { locale: es })}
         </p>
       </div>
-
-      {reminder.kind === "study" && (
-        <Badge variant="secondary" className="hidden shrink-0 sm:inline-flex">
-          Estudio
-        </Badge>
-      )}
-      <Switch
-        defaultChecked={reminder.enabled}
-        disabled={disabled}
-        aria-label={`Aviso de ${reminder.title} (${label.toLowerCase()})`}
-      />
     </li>
   );
 }
