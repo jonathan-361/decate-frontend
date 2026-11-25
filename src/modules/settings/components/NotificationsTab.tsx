@@ -23,8 +23,6 @@ interface NotificationsTabProps {
 
 /** Canales de entrega. Qué avisar y con cuánta anticipación vive en Recordatorios. */
 export function NotificationsTab({
-  notifyEmail,
-  onNotifyEmailChange,
   soundEnabled,
   onSoundEnabledChange,
 }: NotificationsTabProps) {
@@ -138,26 +136,6 @@ export function NotificationsTab({
                 onCheckedChange={(val) => void handleBrowserToggle(val)}
               />
             </div>
-          </div>
-
-          <div className="flex items-center justify-between pt-4">
-            <div className="space-y-0.5 pr-4">
-              <Label
-                htmlFor="notify-email"
-                className="text-xs font-semibold text-foreground"
-              >
-                Resumen matutino por correo
-              </Label>
-              <p className="text-[11px] text-muted-foreground">
-                Envío diario a las 07:00 AM con las actividades programadas para
-                la jornada.
-              </p>
-            </div>
-            <Switch
-              id="notify-email"
-              checked={notifyEmail}
-              onCheckedChange={onNotifyEmailChange}
-            />
           </div>
 
           <div className="flex items-center justify-between pt-4">
