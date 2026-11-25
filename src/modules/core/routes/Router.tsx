@@ -44,7 +44,7 @@ function AppRouter() {
           </Route>
         </Route>
 
-        <Route path="*" element={<Navigate to={paths.home} replace />} />
+        <Route path="*" element={<Navigate to={paths.login} replace />} />
       </Routes>
     </Suspense>
   );

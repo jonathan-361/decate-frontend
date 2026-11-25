@@ -1,3 +1,4 @@
+import axios from "axios";
 import { create } from "zustand";
 import { toast } from "sonner";
 import { taskService } from "@/modules/tasks/services/task.service";
@@ -51,6 +52,11 @@ export const useTaskStore = create<TaskState>((set, get) => ({
         set({ tasks: data, isLoading: false, error: null });
         void idbSet(TASKS_KEY, data);
       } catch (err) {
+        if (axios.isAxiosError(err) && err.response?.status === 401) {
+          set({ isLoading: false });
+          return;
+        }
+
         // Si estamos offline o el fallo es de red (Network Error), NO mostramos error bloqueante:
         // se muestran las tareas locales (o array vacío si no hay ninguna)
         const isOffline =
