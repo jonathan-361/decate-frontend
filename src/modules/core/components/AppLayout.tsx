@@ -5,7 +5,7 @@ import {
   LayoutDashboard,
   CheckSquare,
   Calendar,
-  Clock,
+  //Clock,
   FlaskConical,
   Bell,
   User,
@@ -38,8 +38,8 @@ import { useAuthStore } from "@/modules/auth/stores/auth.store";
 const navItems = [
   { label: "Inicio", icon: LayoutDashboard, path: paths.home },
   { label: "Tareas", icon: CheckSquare, path: paths.tasks },
-  { label: "Calendario", icon: Calendar, path: paths.calendar },
-  { label: "Horario", icon: Clock, path: paths.schedule },
+  { label: "Horario", icon: Calendar, path: paths.calendar },
+  //{ label: "Horario", icon: Clock, path: paths.schedule },
   { label: "Exámenes", icon: FlaskConical, path: paths.exams },
   { label: "Recordatorios", icon: Bell, path: paths.reminders },
 ];
@@ -155,7 +155,7 @@ function AppLayout({ children }: AppLayoutProps) {
                 : location.pathname === paths.settings
                   ? "Configuración"
                   : (navItems.find((n) => n.path === location.pathname)
-                      ?.label ?? "Dacate")}
+                    ?.label ?? "Dacate")}
             </span>
           </header>
 

@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Save, RotateCcw, Loader2 } from "lucide-react";
+import { Save, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -49,7 +49,7 @@ export function ProfileEditForm({ perfil, onSave }: ProfileEditFormProps) {
     handleSubmit,
     control,
     reset,
-    formState: { errors, isSubmitting, isDirty },
+    formState: { errors, isSubmitting },
   } = useForm<UpdateProfileFormValues>({
     resolver: zodResolver(updateProfileSchema),
     defaultValues: {
@@ -243,23 +243,7 @@ export function ProfileEditForm({ perfil, onSave }: ProfileEditFormProps) {
         <Separator className="my-6" />
 
         <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
-          <Button
-            type="button"
-            variant="outline"
-            disabled={!isDirty || isSubmitting}
-            onClick={() =>
-              reset({
-                telefono: perfil.telefono ?? "",
-                carrera: perfil.carrera ?? "",
-                semestre: String(perfil.semestre || 1),
-                turno: perfil.turno ?? "MATUTINO",
-              })
-            }
-            className="w-full sm:w-auto text-xs"
-          >
-            <RotateCcw className="size-3.5 mr-1" />
-            Restablecer valores
-          </Button>
+
 
           <Button
             type="submit"

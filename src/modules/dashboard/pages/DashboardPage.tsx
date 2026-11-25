@@ -4,11 +4,9 @@ import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { paths } from "@/modules/core/routes/paths/path";
 import { PageContainer, PageHeader } from "@/components/custom";
-import { MOCK_TODAY_CLASSES } from "@/modules/dashboard/data/mockDashboard";
 import { WeeklyProgress } from "@/modules/dashboard/components/WeeklyProgress";
 import { PendingTasksSection } from "@/modules/dashboard/components/PendingTasksSection";
 import { UpcomingExamsSection } from "@/modules/dashboard/components/UpcomingExamsSection";
-import { TodayClassesSection } from "@/modules/dashboard/components/TodayClassesSection";
 import { QuickAccessSection } from "@/modules/dashboard/components/QuickAccessSection";
 import { useTaskStore } from "@/modules/tasks/stores/task.store";
 import { dueDateTime } from "@/modules/tasks/utils/taskDate";
@@ -75,7 +73,6 @@ export default function DashboardPage() {
 
         <div className="space-y-8">
           <UpcomingExamsSection exams={upcomingExams.slice(0, 3)} isLoading={examsLoading} />
-          <TodayClassesSection classes={MOCK_TODAY_CLASSES} />
         </div>
       </div>
 

@@ -1,15 +1,13 @@
-import { Link } from "react-router";
+
 import {
   Mail,
   Phone,
   Building2,
   GraduationCap,
   CalendarDays,
-  KeyRound,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { paths } from "@/modules/core/routes/paths/path";
 import type { PerfilUsuario } from "@/modules/users/services/profile.service";
 
 interface StudentIdentityCardProps {
@@ -78,16 +76,6 @@ export function StudentIdentityCard({ perfil }: StudentIdentityCardProps) {
           </span>
         </div>
       </div>
-
-      <Separator className="my-5 w-full" />
-
-      <Link
-        to={paths.changePassword}
-        className="w-full flex items-center justify-center gap-2 border border-border py-2 px-3 text-xs font-medium text-foreground hover:bg-muted transition-colors"
-      >
-        <KeyRound className="size-3.5 text-muted-foreground" />
-        Cambiar contraseña
-      </Link>
     </div>
   );
 }
