@@ -60,7 +60,7 @@ function LoginPage() {
     >
       <form onSubmit={handleSubmit(onSubmit)} noValidate>
         <FieldSet disabled={isSubmitting} className="border-0 p-0 m-0 min-w-0">
-          <FieldGroup className="gap-6">
+          <FieldGroup className="gap-3.5">
             {/* Email */}
             <Field data-invalid={!!errors.email}>
               <FieldLabel>

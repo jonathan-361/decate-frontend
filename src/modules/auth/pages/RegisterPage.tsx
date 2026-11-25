@@ -91,7 +91,7 @@ function RegisterPage() {
     >
       <form onSubmit={handleSubmit(onSubmit)} noValidate>
         <FieldSet disabled={isSubmitting} className="border-0 p-0 m-0 min-w-0">
-          <FieldGroup className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-3">
+          <FieldGroup className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2">
             {/* Nombre */}
             <Field className="sm:col-span-2" data-invalid={!!errors.nombre}>
               <FieldLabel>
