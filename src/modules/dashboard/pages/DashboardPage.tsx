@@ -4,10 +4,7 @@ import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { paths } from "@/modules/core/routes/paths/path";
 import { PageContainer, PageHeader } from "@/components/custom";
-import {
-  MOCK_UPCOMING_EXAMS,
-  MOCK_TODAY_CLASSES,
-} from "@/modules/dashboard/data/mockDashboard";
+import { MOCK_TODAY_CLASSES } from "@/modules/dashboard/data/mockDashboard";
 import { WeeklyProgress } from "@/modules/dashboard/components/WeeklyProgress";
 import { PendingTasksSection } from "@/modules/dashboard/components/PendingTasksSection";
 import { UpcomingExamsSection } from "@/modules/dashboard/components/UpcomingExamsSection";
@@ -15,17 +12,25 @@ import { TodayClassesSection } from "@/modules/dashboard/components/TodayClasses
 import { QuickAccessSection } from "@/modules/dashboard/components/QuickAccessSection";
 import { useTaskStore } from "@/modules/tasks/stores/task.store";
 import { dueDateTime } from "@/modules/tasks/utils/taskDate";
+import { useExamStore } from "@/modules/exams/stores/exam.store";
+import { getUpcomingExams } from "@/modules/exams/data/examMeta";
 
 export default function DashboardPage() {
   const { tasks, isLoading, fetchTasks } = useTaskStore();
+  const exams = useExamStore((s) => s.exams);
+  const examsLoading = useExamStore((s) => s.isLoading);
+  const fetchExams = useExamStore((s) => s.fetchExams);
 
   useEffect(() => {
     void fetchTasks();
-  }, [fetchTasks]);
+    void fetchExams();
+  }, [fetchTasks, fetchExams]);
 
   const pendingTasks = tasks
     .filter((t) => t.estado !== "Completado")
     .sort((a, b) => dueDateTime(a).getTime() - dueDateTime(b).getTime());
+
+  const upcomingExams = getUpcomingExams(exams);
 
   const now = new Date();
   const dateStr = now.toLocaleDateString("es-MX", {
@@ -48,7 +53,7 @@ export default function DashboardPage() {
             </span>{" "}
             y{" "}
             <span className="text-foreground font-medium">
-              {MOCK_UPCOMING_EXAMS.length} exámenes próximos
+              {upcomingExams.length} {upcomingExams.length === 1 ? "examen próximo" : "exámenes próximos"}
             </span>
             .
           </>
@@ -69,7 +74,7 @@ export default function DashboardPage() {
         <PendingTasksSection tasks={pendingTasks} isLoading={isLoading} />
 
         <div className="space-y-8">
-          <UpcomingExamsSection exams={MOCK_UPCOMING_EXAMS} />
+          <UpcomingExamsSection exams={upcomingExams.slice(0, 3)} isLoading={examsLoading} />
           <TodayClassesSection classes={MOCK_TODAY_CLASSES} />
         </div>
       </div>

@@ -1,9 +1,21 @@
+import { useEffect } from "react";
 import { Link } from "react-router";
 import { KeyRound } from "lucide-react";
 import { paths } from "@/modules/core/routes/paths/path";
 import { MOCK_STUDENT_STATS } from "@/modules/users/data/mockProfile";
+import { getPastExams } from "@/modules/exams/data/examMeta";
+import { useExamStore } from "@/modules/exams/stores/exam.store";
 
 export function AcademicStatsOverview() {
+  const exams = useExamStore((s) => s.exams);
+  const fetchExams = useExamStore((s) => s.fetchExams);
+
+  useEffect(() => {
+    void fetchExams();
+  }, [fetchExams]);
+
+  const takenExams = getPastExams(exams).length;
+
   return (
     <div className="border border-border bg-card p-5 space-y-4">
       <h2 className="text-xs font-semibold tracking-wider uppercase text-muted-foreground">
@@ -47,9 +59,9 @@ export function AcademicStatsOverview() {
           <span className="text-[11px] text-muted-foreground block">Exámenes rendidos</span>
           <div className="flex items-baseline gap-1 mt-1">
             <span className="font-heading text-xl font-semibold text-foreground">
-              {MOCK_STUDENT_STATS.passedExams}
+              {takenExams}
             </span>
-            <span className="text-[10px] text-muted-foreground">aprobados</span>
+            <span className="text-[10px] text-muted-foreground">realizados</span>
           </div>
         </div>
       </div>
@@ -66,4 +78,3 @@ export function AcademicStatsOverview() {
     </div>
   );
 }
-

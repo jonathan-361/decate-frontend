@@ -10,15 +10,6 @@ export interface PendingTaskSummary {
   isUrgent: boolean;
 }
 
-export interface UpcomingExamSummary {
-  id: number;
-  name: string;
-  subject: string;
-  subjectColor: string;
-  date: string;
-  daysLeft: number;
-}
-
 export interface TodayClassSummary {
   id: number;
   subject: string;
@@ -61,25 +52,6 @@ export const MOCK_PENDING_TASKS: PendingTaskSummary[] = [
   },
 ];
 
-export const MOCK_UPCOMING_EXAMS: UpcomingExamSummary[] = [
-  {
-    id: 1,
-    name: "Examen parcial 2",
-    subject: "Cálculo Diferencial",
-    subjectColor: "bg-blue-500",
-    date: "Lun 10 nov",
-    daysLeft: 5,
-  },
-  {
-    id: 2,
-    name: "Evaluación práctica",
-    subject: "Programación",
-    subjectColor: "bg-emerald-500",
-    date: "Mié 12 nov",
-    daysLeft: 7,
-  },
-];
-
 export const MOCK_TODAY_CLASSES: TodayClassSummary[] = [
   {
     id: 1,
@@ -116,4 +88,3 @@ export const MOCK_TODAY_CLASSES: TodayClassSummary[] = [
 ];
 
 export const MOCK_COMPLETION_RATE = 68;
-

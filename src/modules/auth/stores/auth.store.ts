@@ -62,6 +62,9 @@ export const useAuthStore = create<AuthState>()((set) => ({
     void import("@/modules/tasks/stores/task.store").then((m) =>
       m.useTaskStore.setState({ tasks: [] })
     );
+    void import("@/modules/exams/stores/exam.store").then((m) =>
+      m.useExamStore.getState().clear()
+    );
     void import("@/modules/users/stores/profile.store").then((m) =>
       m.useProfileStore.setState({ perfil: null })
     );
