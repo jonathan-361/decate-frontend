@@ -183,19 +183,19 @@ export default function RemindersPage() {
         onChange={(val) => void handleMasterToggle(val)}
       />
 
-      <Tabs defaultValue="upcoming">
+      <Tabs defaultValue="upcoming" className="min-w-0">
         <TabsList
           variant="line"
-          className="h-auto w-full justify-start rounded-none border-b border-border pb-0"
+          className="h-auto w-full max-w-full justify-start gap-4 overflow-x-auto overscroll-x-contain rounded-none border-b border-border pb-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         >
-          <TabsTrigger value="upcoming" className="relative pb-3">
+          <TabsTrigger value="upcoming" className="relative shrink-0 pb-3">
             Próximos
             <CountChip value={upcoming.length} />
           </TabsTrigger>
-          <TabsTrigger value="rules" className="relative pb-3">
+          <TabsTrigger value="rules" className="relative shrink-0 pb-3">
             Anticipación
           </TabsTrigger>
-          <TabsTrigger value="history" className="relative pb-3">
+          <TabsTrigger value="history" className="relative shrink-0 pb-3">
             Historial
             {unread > 0 && <CountChip value={unread} />}
           </TabsTrigger>

@@ -15,21 +15,24 @@ const OPTIONS: { value: ExamFilter; label: string }[] = [
 
 export function ExamsFilter({ value, counts, onChange }: ExamsFilterProps) {
   return (
-    <div
-      role="group"
-      aria-label="Filtrar exámenes"
-      className="inline-flex self-start border border-border"
-    >
-      {OPTIONS.map((option) => (
-        <Button
-          key={option.value}
-          variant={value === option.value ? "default" : "ghost"}
-          aria-pressed={value === option.value}
-          onClick={() => onChange(option.value)}
-        >
-          {option.label} ({counts[option.value]})
-        </Button>
-      ))}
+    <div className="max-w-full self-start overflow-x-auto overscroll-x-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <div
+        role="group"
+        aria-label="Filtrar exámenes"
+        className="inline-flex border border-border"
+      >
+        {OPTIONS.map((option) => (
+          <Button
+            key={option.value}
+            variant={value === option.value ? "default" : "ghost"}
+            aria-pressed={value === option.value}
+            className="shrink-0"
+            onClick={() => onChange(option.value)}
+          >
+            {option.label} ({counts[option.value]})
+          </Button>
+        ))}
+      </div>
     </div>
   );
 }

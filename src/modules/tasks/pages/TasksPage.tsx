@@ -260,16 +260,16 @@ export default function TasksPage() {
           Cargando tareas…
         </p>
       ) : (
-        <Tabs defaultValue="Pendiente">
+        <Tabs defaultValue="Pendiente" className="min-w-0">
           <TabsList
             variant="line"
-            className="w-full justify-start border-b border-border rounded-none pb-0 h-auto"
+            className="h-auto w-full max-w-full justify-start gap-4 overflow-x-auto overscroll-x-contain rounded-none border-b border-border pb-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
           >
             {TABS.map((tab) => (
               <TabsTrigger
                 key={tab.value}
                 value={tab.value}
-                className="relative pb-3"
+                className="relative shrink-0 pb-3"
               >
                 {tab.label}
                 {counts[tab.value] > 0 && (
