@@ -5,9 +5,9 @@ import { SectionHeader } from "@/components/custom";
 
 const quickActions = [
   { icon: CheckSquare, label: "Nueva tarea", color: "text-emerald-600", path: paths.tasks },
-  { icon: FlaskConical, label: "Nuevo examen", color: "text-blue-600", path: "/exams" },
-  { icon: BookOpen, label: "Ver horario", color: "text-amber-600", path: "/schedule" },
-  { icon: Clock, label: "Recordatorio", color: "text-purple-600", path: "/reminders" },
+  { icon: FlaskConical, label: "Nuevo examen", color: "text-blue-600", path: paths.exams },
+  { icon: BookOpen, label: "Ver horario", color: "text-amber-600", path: paths.calendar },
+  { icon: Clock, label: "Recordatorio", color: "text-purple-600", path: paths.reminders },
 ];
 
 export function QuickAccessSection() {
