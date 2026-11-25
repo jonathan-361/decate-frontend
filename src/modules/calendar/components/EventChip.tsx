@@ -1,6 +1,6 @@
 import { AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { CalendarEvent } from "@/modules/calendar/data/mockCalendar";
+import type { CalendarEvent } from "@/modules/calendar/schemas";
 import {
   EVENT_TYPE_META,
   isUrgent,
@@ -21,11 +21,10 @@ export function EventChip({ event }: EventChipProps) {
         "flex min-w-0 items-center gap-1 rounded-none px-1.5 py-0.5 text-[11px] leading-tight",
         event.type === "exam" && "bg-primary text-primary-foreground",
         event.type === "task" &&
-          "border border-border bg-background text-foreground",
-        event.type === "event" && "bg-muted text-foreground",
+        "border border-border bg-background text-foreground",
         urgent &&
-          event.type === "task" &&
-          "border-destructive/40 text-destructive",
+        event.type === "task" &&
+        "border-destructive/40 text-destructive",
         event.completed && "line-through opacity-60",
       )}
     >

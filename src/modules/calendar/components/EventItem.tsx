@@ -2,11 +2,10 @@ import { AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { PriorityDot } from "@/components/custom";
-import type { CalendarEvent } from "@/modules/calendar/data/mockCalendar";
+import type { CalendarEvent } from "@/modules/calendar/schemas";
 import {
   EVENT_TYPE_META,
   formatDaysLeft,
-  formatTimeRange,
   getDaysLeft,
   isUrgent,
 } from "@/modules/calendar/data/calendarMeta";
@@ -56,7 +55,7 @@ export function EventItem({ event }: EventItemProps) {
               <span className="text-muted-foreground/40">·</span>
             </>
           )}
-          <span>{formatTimeRange(event)}</span>
+          <span>{event.time}</span>
           {event.location && (
             <>
               <span className="text-muted-foreground/40">·</span>

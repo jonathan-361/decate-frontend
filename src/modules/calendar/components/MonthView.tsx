@@ -12,7 +12,7 @@ import {
 import { es } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { EventChip } from "@/modules/calendar/components/EventChip";
-import type { CalendarEvent } from "@/modules/calendar/data/mockCalendar";
+import type { CalendarEvent } from "@/modules/calendar/schemas";
 import { getEventsForDay } from "@/modules/calendar/data/calendarMeta";
 
 const MAX_VISIBLE = 3;
@@ -85,11 +85,8 @@ export function MonthView({
               <div className="flex gap-0.5 md:hidden">
                 {dayEvents.slice(0, 4).map((event) => (
                   <span
-                    key={event.id}
-                    className={cn(
-                      "size-1.5 rounded-full",
-                      event.subjectColor ?? "bg-foreground/40",
-                    )}
+                    key={event.uid}
+                    className={cn("size-1.5 rounded-full", event.subjectColor)}
                     aria-hidden="true"
                   />
                 ))}
@@ -98,7 +95,7 @@ export function MonthView({
               {/* Escritorio: chips */}
               <div className="hidden min-w-0 flex-col gap-1 md:flex">
                 {dayEvents.slice(0, MAX_VISIBLE).map((event) => (
-                  <EventChip key={event.id} event={event} />
+                  <EventChip key={event.uid} event={event} />
                 ))}
                 {hidden > 0 && (
                   <span className="px-1.5 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">

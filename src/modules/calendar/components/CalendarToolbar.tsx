@@ -1,6 +1,6 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import type { CalendarView } from "@/modules/calendar/data/mockCalendar";
+import type { CalendarView } from "@/modules/calendar/schemas";
 
 const VIEW_OPTIONS: { value: CalendarView; label: string }[] = [
   { value: "month", label: "Mes" },

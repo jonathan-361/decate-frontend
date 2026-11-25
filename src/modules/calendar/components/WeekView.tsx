@@ -9,7 +9,7 @@ import {
 import { es } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { EventItem } from "@/modules/calendar/components/EventItem";
-import type { CalendarEvent } from "@/modules/calendar/data/mockCalendar";
+import type { CalendarEvent } from "@/modules/calendar/schemas";
 import { getEventsForDay } from "@/modules/calendar/data/calendarMeta";
 
 interface WeekViewProps {
@@ -67,7 +67,7 @@ export function WeekView({
                 </p>
               ) : (
                 dayEvents.map((event) => (
-                  <EventItem key={event.id} event={event} />
+                  <EventItem key={event.uid} event={event} />
                 ))
               )}
             </div>

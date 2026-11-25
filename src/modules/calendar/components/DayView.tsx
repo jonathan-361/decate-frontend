@@ -1,9 +1,10 @@
 import type { ReactNode } from "react";
 import { EventItem } from "@/modules/calendar/components/EventItem";
-import type { CalendarEvent } from "@/modules/calendar/data/mockCalendar";
+import type { CalendarEvent } from "@/modules/calendar/schemas";
 import { getEventsForDay } from "@/modules/calendar/data/calendarMeta";
 
-const HOURS = Array.from({ length: 15 }, (_, i) => i + 7); // 07:00 – 21:00
+const MIN_HOUR = 7;
+const MAX_HOUR = 21;
 
 function TimeRow({ label, children }: { label: string; children?: ReactNode }) {
   return (
@@ -23,25 +24,27 @@ interface DayViewProps {
 
 export function DayView({ currentDate, events }: DayViewProps) {
   const dayEvents = getEventsForDay(events, currentDate);
-  const allDay = dayEvents.filter((e) => !e.time);
-  const timed = dayEvents.filter((e) => e.time);
+
+  // Rango base 07:00 – 21:00, ampliado si hay actividades fuera de él (p. ej. entregas a las 23:59).
+  const eventHours = dayEvents.map((e) => Number(e.time.split(":")[0]));
+  const startHour = Math.min(MIN_HOUR, ...eventHours);
+  const endHour = Math.max(MAX_HOUR, ...eventHours);
+  const hours = Array.from(
+    { length: endHour - startHour + 1 },
+    (_, i) => startHour + i,
+  );
 
   return (
     <div className="border border-border">
-      <TimeRow label="Todo el día">
-        {allDay.map((event) => (
-          <EventItem key={event.id} event={event} />
-        ))}
-      </TimeRow>
-      {HOURS.map((hour) => {
+      {hours.map((hour) => {
         const hourLabel = `${String(hour).padStart(2, "0")}:00`;
-        const inHour = timed.filter(
-          (e) => Number(e.time!.split(":")[0]) === hour,
+        const inHour = dayEvents.filter(
+          (e) => Number(e.time.split(":")[0]) === hour,
         );
         return (
           <TimeRow key={hour} label={hourLabel}>
             {inHour.map((event) => (
-              <EventItem key={event.id} event={event} />
+              <EventItem key={event.uid} event={event} />
             ))}
           </TimeRow>
         );

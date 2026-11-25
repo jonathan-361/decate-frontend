@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router";
 import {
   addDays,
   addMonths,
@@ -12,9 +13,9 @@ import {
   subWeeks,
 } from "date-fns";
 import { es } from "date-fns/locale";
-import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PageContainer, PageHeader } from "@/components/custom";
+import { paths } from "@/modules/core/routes/paths/path";
 import { CalendarToolbar } from "@/modules/calendar/components/CalendarToolbar";
 import { CalendarLegend } from "@/modules/calendar/components/CalendarLegend";
 import { MonthView } from "@/modules/calendar/components/MonthView";
@@ -22,10 +23,8 @@ import { WeekView } from "@/modules/calendar/components/WeekView";
 import { DayView } from "@/modules/calendar/components/DayView";
 import { DayDetailPanel } from "@/modules/calendar/components/DayDetailPanel";
 import { UpcomingDeadlines } from "@/modules/calendar/components/UpcomingDeadlines";
-import {
-  MOCK_CALENDAR_EVENTS,
-  type CalendarView,
-} from "@/modules/calendar/data/mockCalendar";
+import { useCalendarEvents } from "@/modules/calendar/hooks/useCalendarEvents";
+import type { CalendarView } from "@/modules/calendar/schemas";
 import { getEventsForDay } from "@/modules/calendar/data/calendarMeta";
 
 function getPeriodLabel(view: CalendarView, date: Date) {
@@ -37,12 +36,11 @@ function getPeriodLabel(view: CalendarView, date: Date) {
 }
 
 export default function CalendarPage() {
-  // Estado local solo para poder revisar el diseño de las tres vistas.
   const [view, setView] = useState<CalendarView>("month");
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(new Date());
 
-  const events = MOCK_CALENDAR_EVENTS;
+  const { events, isLoading, error, refetch } = useCalendarEvents();
 
   const move = (direction: 1 | -1) => {
     const fn = {
@@ -76,60 +74,78 @@ export default function CalendarPage() {
 
   return (
     <PageContainer size="lg">
-        <PageHeader
-          title="Calendario"
-          description="Tus tareas, exámenes y eventos importantes en un solo lugar."
-          actions={
-            <Button size="sm">
-              <Plus className="size-3.5" />
-              Nuevo evento
+      <PageHeader
+        title="Calendario"
+        description="Tus tareas y exámenes en un solo lugar."
+        actions={
+          <div className="flex items-center gap-2">
+            <Button size="sm" variant="outline" render={<Link to={paths.tasks} />}>
+              Tareas
             </Button>
-          }
-        />
-
-        <CalendarToolbar
-          view={view}
-          label={getPeriodLabel(view, currentDate)}
-          onViewChange={handleViewChange}
-          onPrev={() => move(-1)}
-          onNext={() => move(1)}
-          onToday={handleToday}
-        />
-
-        <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_20rem]">
-          {/* Calendario */}
-          <div className="min-w-0 space-y-4">
-            {view === "month" && (
-              <MonthView
-                currentDate={currentDate}
-                selectedDate={selectedDate}
-                events={events}
-                onSelectDay={handleSelectDay}
-              />
-            )}
-            {view === "week" && (
-              <WeekView
-                currentDate={currentDate}
-                selectedDate={selectedDate}
-                events={events}
-                onSelectDay={handleSelectDay}
-              />
-            )}
-            {view === "day" && (
-              <DayView currentDate={currentDate} events={events} />
-            )}
-            <CalendarLegend />
+            <Button size="sm" variant="outline" render={<Link to={paths.exams} />}>
+              Exámenes
+            </Button>
           </div>
+        }
+      />
 
-          {/* Panel lateral */}
-          <aside className="space-y-8">
-            <DayDetailPanel
-              selectedDate={selectedDate}
-              events={getEventsForDay(events, selectedDate)}
-            />
-            <UpcomingDeadlines events={events} />
-          </aside>
+      <CalendarToolbar
+        view={view}
+        label={getPeriodLabel(view, currentDate)}
+        onViewChange={handleViewChange}
+        onPrev={() => move(-1)}
+        onNext={() => move(1)}
+        onToday={handleToday}
+      />
+
+      {error && events.length === 0 && (
+        <div className="flex items-center justify-between gap-3 border border-destructive/40 p-3 text-sm text-destructive">
+          <span>{error}</span>
+          <Button size="sm" variant="outline" onClick={refetch}>
+            Reintentar
+          </Button>
         </div>
-      </PageContainer>
+      )}
+
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_20rem]">
+        {/* Calendario */}
+        <div className="min-w-0 space-y-4">
+          {view === "month" && (
+            <MonthView
+              currentDate={currentDate}
+              selectedDate={selectedDate}
+              events={events}
+              onSelectDay={handleSelectDay}
+            />
+          )}
+          {view === "week" && (
+            <WeekView
+              currentDate={currentDate}
+              selectedDate={selectedDate}
+              events={events}
+              onSelectDay={handleSelectDay}
+            />
+          )}
+          {view === "day" && (
+            <DayView currentDate={currentDate} events={events} />
+          )}
+          {isLoading && events.length === 0 && (
+            <p className="text-xs text-muted-foreground">
+              Cargando actividades…
+            </p>
+          )}
+          <CalendarLegend />
+        </div>
+
+        {/* Panel lateral */}
+        <aside className="space-y-8">
+          <DayDetailPanel
+            selectedDate={selectedDate}
+            events={getEventsForDay(events, selectedDate)}
+          />
+          <UpcomingDeadlines events={events} />
+        </aside>
+      </div>
+    </PageContainer>
   );
 }

@@ -1,9 +1,8 @@
-import { CalendarOff, Plus } from "lucide-react";
+import { CalendarOff } from "lucide-react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import { Button } from "@/components/ui/button";
 import { EventItem } from "@/modules/calendar/components/EventItem";
-import type { CalendarEvent } from "@/modules/calendar/data/mockCalendar";
+import type { CalendarEvent } from "@/modules/calendar/schemas";
 
 interface DayDetailPanelProps {
   selectedDate: Date;
@@ -38,18 +37,13 @@ export function DayDetailPanel({ selectedDate, events }: DayDetailPanelProps) {
                 Día libre
               </p>
               <p className="text-sm text-muted-foreground">
-                No tienes tareas, exámenes ni eventos este día.
+                No tienes tareas ni exámenes este día.
               </p>
             </div>
           </div>
         ) : (
-          events.map((event) => <EventItem key={event.id} event={event} />)
+          events.map((event) => <EventItem key={event.uid} event={event} />)
         )}
-
-        <Button variant="outline" className="w-full">
-          <Plus className="size-3.5" />
-          Agregar actividad
-        </Button>
       </div>
     </section>
   );
