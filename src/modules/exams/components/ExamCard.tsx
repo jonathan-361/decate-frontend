@@ -1,11 +1,16 @@
-import { CalendarDays, MapPin, Pencil, Trash2 } from "lucide-react";
+import { CalendarDays, MapPin, Pencil, Share2, Trash2 } from "lucide-react";
+import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import {
+  formatExamShareText,
+  shareContent,
+} from "@/modules/core/services/webShare";
 import { ExamCountdown } from "@/modules/exams/components/ExamCountdown";
 import { ExamTopicsList } from "@/modules/exams/components/ExamTopicsList";
 import type { Exam } from "@/modules/exams/schemas";
 import { formatExamSchedule, isPastExam } from "@/modules/exams/data/examMeta";
-import { parseTopics } from "@/modules/exams/utils/examDate";
+import { examDateTime, parseTopics } from "@/modules/exams/utils/examDate";
 import { getMateriaColor } from "@/modules/tasks/data/taskMeta";
 
 interface ExamCardProps {
@@ -17,6 +22,24 @@ interface ExamCardProps {
 export function ExamCard({ exam, onEdit, onDelete }: ExamCardProps) {
   const past = isPastExam(exam);
   const schedule = formatExamSchedule(exam);
+  const topics = parseTopics(exam.temasEvaluar);
+
+  const handleShare = async () => {
+    const payload = formatExamShareText({
+      title: exam.titulo,
+      date: examDateTime(exam),
+      subjectName: exam.materia,
+      location: exam.aula,
+      topics: topics.length > 0 ? topics.join(", ") : null,
+    });
+
+    const result = await shareContent(payload);
+    if (result.status === "copied") {
+      toast.success("Examen copiado al portapapeles");
+    } else if (result.status === "error") {
+      toast.error("No se pudo compartir el examen");
+    }
+  };
 
   return (
     <article
@@ -46,6 +69,14 @@ export function ExamCard({ exam, onEdit, onDelete }: ExamCardProps) {
 
           {/* Acciones: visibles en móvil, reveladas al pasar el cursor en escritorio */}
           <div className="flex shrink-0 gap-1 transition-opacity sm:opacity-0 sm:group-hover:opacity-100 sm:focus-within:opacity-100">
+            <Button
+              variant="ghost"
+              size="icon"
+              aria-label={`Compartir ${exam.titulo}`}
+              onClick={() => void handleShare()}
+            >
+              <Share2 className="size-4" />
+            </Button>
             <Button
               variant="ghost"
               size="icon"
@@ -91,7 +122,7 @@ export function ExamCard({ exam, onEdit, onDelete }: ExamCardProps) {
 
       {/* Temas */}
       <div className="p-4">
-        <ExamTopicsList topics={parseTopics(exam.temasEvaluar)} />
+        <ExamTopicsList topics={topics} />
       </div>
     </article>
   );

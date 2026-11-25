@@ -1,15 +1,21 @@
 import {
   Pencil,
   Trash2,
+  Share2,
   CircleCheck,
   Circle,
   Clock,
   AlertCircle,
 } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { priorityConfig } from "@/components/custom";
+import {
+  formatTaskShareText,
+  shareContent,
+} from "@/modules/core/services/webShare";
 import type { Task, TaskStatus } from "@/modules/tasks/schemas";
 import {
   ESTADO_LABEL,
@@ -56,6 +62,23 @@ export function TaskCard({
   const pr = priorityConfig[task.prioridad];
   const done = task.estado === "Completado";
   const overdue = !done && dueDateTime(task) < new Date();
+
+  const handleShare = async () => {
+    const payload = formatTaskShareText({
+      title: task.titulo,
+      description: task.descripcion,
+      dueDate: dueDateTime(task),
+      subjectName: getMateriaLabel(task.materia),
+      priority: task.prioridad,
+    });
+
+    const result = await shareContent(payload);
+    if (result.status === "copied") {
+      toast.success("Tarea copiada al portapapeles");
+    } else if (result.status === "error") {
+      toast.error("No se pudo compartir la tarea");
+    }
+  };
 
   return (
     <div
@@ -122,7 +145,16 @@ export function TaskCard({
           <st.icon className="size-3" />
           {ESTADO_LABEL[task.estado]}
         </Badge>
-        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+        <div className="flex items-center gap-1 sm:opacity-0 sm:group-hover:opacity-100 sm:focus-within:opacity-100 transition-opacity">
+          <Button
+            size="sm"
+            variant="ghost"
+            className="h-7 w-7 p-0"
+            onClick={() => void handleShare()}
+            aria-label="Compartir tarea"
+          >
+            <Share2 className="size-3.5" />
+          </Button>
           <Button
             size="sm"
             variant="ghost"

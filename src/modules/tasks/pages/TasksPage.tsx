@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router";
 import { toast } from "sonner";
 import { Plus, Search, CircleCheck, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -12,6 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { PageContainer, PageHeader } from "@/components/custom";
+import { extractIncomingShareData } from "@/modules/core/services/webShare";
 import type { Task, TaskPayload, TaskStatus } from "@/modules/tasks/schemas";
 import {
   getMateriaColor,
@@ -41,15 +43,32 @@ export default function TasksPage() {
     updateTask,
     deleteTask,
   } = useTaskStore();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [search, setSearch] = useState("");
   const [filterPriority, setFilterPriority] = useState<string>("todas");
   const [filterSubject, setFilterSubject] = useState<string>("todas");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
+  const [sharedPrefill, setSharedPrefill] = useState<Partial<TaskPayload> | null>(null);
 
   useEffect(() => {
     void fetchTasks();
   }, [fetchTasks]);
+
+  // Captura contenido compartido hacia Dacate desde otras aplicaciones (Web Share Target)
+  useEffect(() => {
+    const incoming = extractIncomingShareData(searchParams);
+    if (!incoming) return;
+
+    const descriptionParts = [incoming.text, incoming.url].filter(Boolean);
+    setEditingTask(null);
+    setSharedPrefill({
+      titulo: incoming.title || incoming.text.slice(0, 80) || "Tarea compartida",
+      descripcion: descriptionParts.join("\n"),
+    });
+    setDialogOpen(true);
+    setSearchParams({}, { replace: true });
+  }, [searchParams, setSearchParams]);
 
   const availableSubjects = Array.from(
     new Set(tasks.map((t) => t.materia).filter(Boolean)),
@@ -98,6 +117,7 @@ export default function TasksPage() {
   const closeDialog = () => {
     setDialogOpen(false);
     setEditingTask(null);
+    setSharedPrefill(null);
   };
 
   const handleSave = async (payload: TaskPayload) => {
@@ -141,11 +161,13 @@ export default function TasksPage() {
   };
 
   const handleEdit = (task: Task) => {
+    setSharedPrefill(null);
     setEditingTask(task);
     setDialogOpen(true);
   };
 
   const openCreate = () => {
+    setSharedPrefill(null);
     setEditingTask(null);
     setDialogOpen(true);
   };
@@ -303,6 +325,7 @@ export default function TasksPage() {
         open={dialogOpen}
         onClose={closeDialog}
         initial={editingTask}
+        prefill={sharedPrefill}
         onSave={handleSave}
       />
     </PageContainer>

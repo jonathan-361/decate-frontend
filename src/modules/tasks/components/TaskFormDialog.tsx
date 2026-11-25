@@ -53,6 +53,8 @@ interface TaskFormDialogProps {
   open: boolean;
   onClose: () => void;
   initial?: Task | null;
+  /** Datos precargados al crear una tarea (p. ej. desde Web Share Target). */
+  prefill?: Partial<TaskPayload> | null;
   /** Debe resolver sin lanzar: el que llama muestra el error y decide si cierra. */
   onSave: (payload: TaskPayload) => Promise<void>;
 }
@@ -61,6 +63,7 @@ export function TaskFormDialog({
   open,
   onClose,
   initial,
+  prefill,
   onSave,
 }: TaskFormDialogProps) {
   const isEdit = !!initial;
@@ -68,8 +71,14 @@ export function TaskFormDialog({
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    setForm(initial ? fromTask(initial) : EMPTY);
-  }, [initial, open]);
+    if (initial) {
+      setForm(fromTask(initial));
+    } else if (prefill) {
+      setForm({ ...EMPTY, ...prefill });
+    } else {
+      setForm(EMPTY);
+    }
+  }, [initial, prefill, open]);
 
   const set = <K extends keyof TaskPayload>(key: K, value: TaskPayload[K]) =>
     setForm((f) => ({ ...f, [key]: value }));
