@@ -12,4 +12,15 @@ export const authService = {
 
   registro: (payload: RegistroPayload) =>
     post<ApiResponse<null>>("/api/usuarios/registro", payload),
+
+  // Envía al correo un enlace con token (expira en 15 min)
+  solicitarRecuperacion: (correo: string) =>
+    post<ApiResponse<null>>("/api/recuperacion/recuperar", { correo }),
+
+  // Cambia la contraseña usando el token del enlace
+  restablecerPassword: (token: string, password: string) =>
+    post<ApiResponse<null>>("/api/recuperacion/restablecer", {
+      token,
+      password,
+    }),
 };

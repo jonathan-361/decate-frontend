@@ -134,6 +134,16 @@ function LoginPage() {
                   Recordarme
                 </span>
               </label>
+
+              <Link
+                to={paths.changePassword}
+                className={cn(
+                  "text-sm text-primary underline underline-offset-4 hover:text-primary/80 transition-colors",
+                  isSubmitting && "pointer-events-none opacity-50"
+                )}
+              >
+                ¿Olvidaste tu contraseña?
+              </Link>
             </div>
 
             {/* Submit */}

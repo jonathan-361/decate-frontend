@@ -12,7 +12,6 @@ export type ChangePasswordEmailFormValues = z.infer<typeof changePasswordEmailSc
 
 export const changePasswordResetSchema = z
   .object({
-    code: z.string().length(6, "El código debe tener 6 dígitos"),
     password: z
       .string()
       .min(8, "La contraseña debe tener al menos 8 caracteres")

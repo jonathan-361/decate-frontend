@@ -6,8 +6,8 @@ import { AppLayout } from "@/modules/core/components/AppLayout";
 
 const LoginPage = lazy(() => import("@/modules/auth/pages/LoginPage"));
 const RegisterPage = lazy(() => import("@/modules/auth/pages/RegisterPage"));
-const ForgotPasswordPage = lazy(() => import("@/modules/auth/pages/ForgotPasswordPage"));
 const ChangePasswordPage = lazy(() => import("@/modules/auth/pages/ChangePasswordPage"));
+const ResetPasswordPage = lazy(() => import("@/modules/auth/pages/ResetPasswordPage"));
 const DashboardPage = lazy(() => import("@/modules/dashboard/pages/DashboardPage"));
 const TasksPage = lazy(() => import("@/modules/tasks/pages/TasksPage"));
 const SchedulePage = lazy(() => import("@/modules/schedule/pages/SchedulePage"));
@@ -25,9 +25,10 @@ function AppRouter() {
         <Route element={<PublicGuard />}>
           <Route path={paths.login} element={<LoginPage />} />
           <Route path={paths.register} element={<RegisterPage />} />
-          <Route path={paths.forgotPassword} element={<ForgotPasswordPage />} />
-          <Route path={paths.changePassword} element={<ChangePasswordPage />} />
         </Route>
+
+        <Route path={paths.changePassword} element={<ChangePasswordPage />} />
+        <Route path={paths.resetPassword} element={<ResetPasswordPage />} />
 
         {/* Rutas privadas: redirigen a login si no hay sesión */}
         <Route element={<PrivateGuard />}>
