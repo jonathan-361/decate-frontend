@@ -75,7 +75,7 @@ export default function CalendarPage() {
   return (
     <PageContainer size="lg">
       <PageHeader
-        title="Calendario"
+        title="Horarios"
         description="Tus tareas y exámenes en un solo lugar."
         actions={
           <div className="flex items-center gap-2">
