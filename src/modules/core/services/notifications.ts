@@ -87,12 +87,32 @@ export async function requestNotificationPermission(): Promise<NotificationPermi
   return await Notification.requestPermission();
 }
 
+const SW_READY_TIMEOUT = 3000;
+
+/** Registro del service worker con un worker activo, o null si no hay (p. ej. en desarrollo). */
+async function getActiveRegistration(): Promise<ServiceWorkerRegistration | null> {
+  if (!("serviceWorker" in navigator)) return null;
+
+  const existing = await navigator.serviceWorker.getRegistration();
+  if (!existing) return null;
+  if (existing.active) return existing;
+
+  // Hay registro, pero el worker aún se está activando (p. ej. justo tras actualizar la app).
+  return Promise.race([
+    navigator.serviceWorker.ready,
+    new Promise<null>((resolve) =>
+      window.setTimeout(() => resolve(null), SW_READY_TIMEOUT),
+    ),
+  ]);
+}
+
+/** Muestra una notificación nativa. Devuelve true si se pudo mostrar. */
 export async function showLocalNotification(
   title: string,
   options?: NotificationOptions & { url?: string },
-): Promise<void> {
+): Promise<boolean> {
   if (!isNotificationSupported() || Notification.permission !== "granted")
-    return;
+    return false;
 
   const { url = paths.tasks, ...rest } = options ?? {};
 
@@ -103,20 +123,31 @@ export async function showLocalNotification(
     ...rest,
   };
 
-  if ("serviceWorker" in navigator) {
-    const reg = await navigator.serviceWorker.getRegistration();
+  try {
+    const reg = await getActiveRegistration();
     if (reg) {
       await reg.showNotification(title, payload);
-      return;
+      return true;
     }
+  } catch (error) {
+    console.warn(
+      "[dacate] showNotification del service worker falló, se usa Notification:",
+      error,
+    );
   }
 
-  const notification = new Notification(title, payload);
-  notification.onclick = () => {
-    window.focus();
-    window.location.href = url;
-    notification.close();
-  };
+  try {
+    const notification = new Notification(title, payload);
+    notification.onclick = () => {
+      window.focus();
+      window.location.href = url;
+      notification.close();
+    };
+    return true;
+  } catch (error) {
+    console.warn("[dacate] No se pudo mostrar la notificación:", error);
+    return false;
+  }
 }
 
 export type NotificationOrigin = { tareaId: number } | { examenId: number };
@@ -186,11 +217,13 @@ async function notifyDue<T extends { id: number }>(check: DueCheck<T>) {
     if (diffMs <= windowMs && diffMs >= -5 * 60 * 1000) {
       const body = check.body(item, describeTimeLeft(diffMs));
 
-      await showLocalNotification(check.title, {
+      const shown = await showLocalNotification(check.title, {
         body,
         tag: `${check.tagPrefix}-${item.id}`,
         url: check.url,
       });
+      // Si no se pudo mostrar, no se marca como avisado: se reintenta en la siguiente revisión.
+      if (!shown) continue;
 
       notified.add(item.id);
       changed = true;

@@ -66,10 +66,32 @@ export function NotificationsTab({
   };
 
   const handleTestNotification = async () => {
-    await showLocalNotification("Prueba de notificación · Dacate", {
-      body: "Así se verán tus recordatorios de tareas próximas.",
-      url: paths.tasks,
-    });
+    if (!isNotificationSupported() || Notification.permission !== "granted") {
+      setBrowserEnabled(false);
+      await saveNotificationSettings({ enabled: false });
+      toast.error(
+        "El permiso de notificaciones está bloqueado en tu navegador. Habilítalo en su configuración y vuelve a activar el interruptor.",
+      );
+      return;
+    }
+
+    const shown = await showLocalNotification(
+      "Prueba de notificación · Dacate",
+      {
+        body: "Así se verán tus recordatorios de tareas y exámenes próximos.",
+        url: paths.tasks,
+      },
+    );
+
+    if (shown) {
+      toast.success(
+        "Notificación enviada. Si no la ves, revisa el modo No molestar o el Asistente de concentración de tu sistema.",
+      );
+    } else {
+      toast.error(
+        "No se pudo mostrar la notificación. Recarga la app e inténtalo de nuevo.",
+      );
+    }
   };
 
   return (
@@ -166,8 +188,8 @@ export function NotificationsTab({
             Avisos por tipo y anticipación
           </h2>
           <p className="mt-0.5 text-xs text-muted-foreground">
-            Activa o desactiva los avisos de tareas, exámenes y clases, y elige
-            con cuánta anticipación llegan.
+            Activa o desactiva los avisos de tareas y exámenes, y elige con
+            cuánta anticipación llegan.
           </p>
         </div>
         <Button
